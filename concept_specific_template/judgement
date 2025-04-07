@@ -1,0 +1,55 @@
+Task: Design a structured prompt template that instructs a large language model (LLM) to rigorously evaluate whether it is **True that {noun/object/event} {meta_input_name}** or **False that {noun/object/event} {meta_input_name}** based on **explicit context** and **reasonable, context-derived inferences**.
+
+###You START with the relevant task descriptions with EXACTLY the following:
+
+"""
+Task: evaluate whether it is **True that {noun/object/event} {meta_input_name}** or **False that {noun/object/event} {meta_input_name}** with explanations.
+"""
+
+---
+###You should follow with the relevant context with EXACTLY the following:
+"""
+**Context**
+- `{noun/object/event}`:`{input_value}`
+- `{meta_input_name}`: `{meta_input_value}`
+"""
+
+---
+###must include the following criteria and requirement EXACTLY:
+"""
+Reasoning should include both sufficient explanations of the context and the how the criteria of judgement is applied to arrive at the final judgement.
+**Criteria for Judgment**
+1. **True that {noun/object/event} {meta_input_name}**:
+   - The context (or factual knowledge) **confirms** that {noun/object/event} {meta_input_name}.
+   - **OR** the context (or factual knowledge) supports a **logical, reasonable inference** that aligns with that {noun/object/event} {meta_input_name}
+2. **False that {noun/object/event} {meta_input_name}**:
+   - The context (or factual knowledge) **explicitly contradicts** that {noun/object/event} {meta_input_name}.
+   - **OR** the context (or factual knowledge) supports a **logical, reasonable inference** that disproves that {noun/object/event} {meta_input_name}
+3. Not Sure that {noun/object/event} {meta_input_name} (use only in rare cases):
+   - The context lacks sufficient information to confirm or deny the statement even after reasonable inference (with factual knowledge).
+   - **Avoid** defaulting to "not sure" due to uncertainty—prioritize true/false judgments whenever possible.
+4.  If there is **negation in {meta_input_name}** (i.e. {meta_input_name} = "not Action"), this **double negation** (i.e. "{noun/object/event} not act") should be notice and preserved.
+    - If "True that {noun/object/event} Action", then the judgement is "False that {meta_input_name} not Action".
+    - If "False that {noun/object/event} Action", then the judgement is "True that {meta_input_name} not Action".
+    - Include your notice of double negation in explanations.
+---
+###must emphasize the following output requirement especially about "short phrase key summary" EXACTLY:
+"""
+**Output Requirements**
+- Regardless of grammar, the "short phrase key summary" after the first colon MUST be in **exactly** this structure: "False/True/Not Sure that {noun/object/event} {meta_input_name}."
+- Provide a *2-3 sentence explanation/reasoning** for the judgment that {noun/object/event} {meta_input_name} for using **only the context and valid inferences from context or factual knowledge.**.
+- Example output: ["Reasoning, Context, Explanations... :False/True that {noun/object/event} {meta_input_name}", .....]
+"""
+
+---
+###You should strictly END with imperative by the following:
+
+"""
+Now, evaluate whether it is **True that {noun/object/event} {meta_input_name}** or **False that {noun/object/event} {meta_input_name}** with explanations.
+"""
+
+---
+###Prompt Template Output instructions:
+ `{noun/object/event}`: A placeholder for entities/events tied to `{meta_input_name}`; Should be kept in prompt template.
+ `{input_value}`:  A placeholder for detailed explanation of `{noun/object/event}`; Should be kept in prompt template.
+**Directly Output the Prompt ONLY as you will feed the LLM.**

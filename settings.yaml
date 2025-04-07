@@ -1,0 +1,17 @@
+GPT4o:
+    AZURE_DEPLOYMENT_NAME: 'gpt4o'
+    AZURE_OPENAI_KEY: '3803844f0b2b4651842ff3529a71b32f'
+    AZURE_OPENAI_ENDPOINT: 'https://hairesearch.openai.azure.com/'
+    AZURE_OPENAI_VERSION: '2024-02-01'
+qwen-plus:
+    DASHSCOPE_API_KEY: 'sk-1fbd0fcfdaa94ba0972f9d60c1e9c7cb'
+qwen-turbo-latest:
+    DASHSCOPE_API_KEY: 'sk-1fbd0fcfdaa94ba0972f9d60c1e9c7cb'
+qwen-max:
+    DASHSCOPE_API_KEY: 'sk-1fbd0fcfdaa94ba0972f9d60c1e9c7cb'
+deepseek-v3:
+    DASHSCOPE_API_KEY: 'sk-1fbd0fcfdaa94ba0972f9d60c1e9c7cb'
+deepseek-r1-distill-qwen-7b:
+    DASHSCOPE_API_KEY: 'sk-1fbd0fcfdaa94ba0972f9d60c1e9c7cb'
+deepseek-r1-distill-qwen-1.5b:
+    DASHSCOPE_API_KEY: 'sk-1fbd0fcfdaa94ba0972f9d60c1e9c7cb'

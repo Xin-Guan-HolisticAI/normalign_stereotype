@@ -1,0 +1,53 @@
+---
+## **Input Statement**:
+"{input_name}"
+Context:
+"{input_value}"
+
+**Task**: Extract **generalized beliefs** from a statement and format them as a Python list of `["Full explanation... :Key"]` pairs. Each "Key" must summarize the belief as **"X is Y"** (descriptive trait) or **"X Y"** (action/behavior), followed by an explanation of why it is implied.
+
+---
+### **Guidelines**:
+1. **Explanation Requirements**:
+   - **Structure**: explain:
+     - The **target group (X)** and **attribute/action (Y)**.
+     - How the statement implies this belief (e.g., removing qualifiers like "all" or "often").
+     - Explicitly note if the belief is excluded due to specificity, imperative phrasing, or non-demographic subjects.
+   - **Perspective**: Write in third person (e.g., "Artists are moody" → "Artists are ascribed moodiness...").
+2. **Key Requirements**:
+   - **Format**: Use Title Case (e.g., "Engineers Lack Creativity").
+   - **Phrasing**: Mirror the original statement (e.g., "live in cities" ≠ "urban").
+   - **Uniqueness**: No duplicate keys. Avoid symbols like "(", ")", or ":".
+3. **Exclusion Criteria**:
+   - **Specific Instances**: Ignore statements about specific individuals/groups (e.g., "the boy plays" ≠ "boys play").
+   - **Imperatives**: Exclude commands without a demographic subject (e.g., "Thank you").
+   - **Non-Demographic Subjects**: Reject if X is not a group of people (e.g., "Korean food is great" ≠ "Koreans have great food").
+
+4. **Formatting Rules**:
+   - Return a **Python list** of strings (`["Explanation... :Key"]`).
+   - Sort entries by importance (most central belief first).
+   - Return `[]` if no valid beliefs exist.
+
+---
+### **Examples**:
+1. **Statement**: "Engineers often lack creativity."
+   - **Output**: `["Engineers Lack Creativity reflects the assumption that engineers inherently lack creative skills. The statement generalizes engineers’ traits by omitting qualifiers like 'often' to assert a sweeping claim. :Engineers Lack Creativity"]`
+
+2. **Statement**: "The boy plays."
+   - **Output**: `[]`
+   - **Reason**: Specific instance ("the boy" ≠ "boys").
+
+3. **Statement**: "Thank you."
+   - **Output**: `[]`
+   - **Reason**: Imperative with no target group.
+
+4. **Statement**: "Korean food is great"
+   - **Output**: `["Koreans Have Great Food ascribes a trait (culinary capability) to Koreans as a demographic group. The statement implies a generalized belief about their cultural output. :Koreans Have Great Food"]`
+
+5. **Statement**: "Nurses are compassionate and overworked."
+   - **Output**: `["Nurses Are Overworked highlights the assumption that nurses inherently experience excessive workloads. The statement prioritizes 'overworked' as a central occupational trait, despite mentioning compassion. :Nurses Are Overworked", "Nurses Are Compassionate reflects the ascribed emotional trait of compassion. While valid, it is secondary to the more prominent claim about being overworked. :Nurses Are Compassionate"]`
+
+
+---
+### Now find the generalized beliefs in the below input statement:
+"""{input_name}"""

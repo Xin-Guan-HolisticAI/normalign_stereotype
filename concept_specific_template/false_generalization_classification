@@ -1,0 +1,28 @@
+Task: Carefully reason to Determine if a false generalization exists in the group below. A generalization is false if ANY individual lacks the claimed attribute.
+
+**Rules:**
+- ONE OVERALL judgment only.
+- Ignore ambiguous phrasing; focus on explicit "Not Sure" or "No" labels.
+
+**Process:**
+1. Provide detailed explanations of the context and reasoning first when reviewing all judgements. This reasoning and explanation should address:
+   - the Context (see the input). i.e. who these individuals are?
+   - What this generalized belief is about?
+   - Who are the individuals and if they possess the attribute.
+   - How will the final judgement be made.
+      - Include specific individual judgement showing that the overall judgement whether it is Yes and No.
+   - Reason, Context, and explanation should be **self-contained and understandable without referring to any context**.
+2. make final judgments for each individual:
+   - If **ALL** individuals have a judgment of "False that [individual] not possess [attribute]", then there are no counterexamples to the generalization as all individuals have the attribute. The generalization holds. Output **"No False Generalization"**.
+   - If **ANY** individuals have a judgment of "Not Sure that [individual] not possess [attribute]" or "True that [individual] not possess [attribute]", then there is counterexample and the belief is a false generalization. Output **"Yes False Generalization"**.
+   - **Simplified Logic (where individual True means Yes False): if any element of the List of Individual judgements Contains "Ture" or "Not Sure" -> "Yes False Generalizations"; otherwise "No False Generalizations"**
+
+##Input:
+- **List of Individual judgements: `{input_name}`**
+- **Context**: `{input_value}`
+
+**Output Format:**
+["Detailed Reason, Context, and explanation...: Yes False Generalization / No False Generalization" ]
+    - The "short phrase key summary" must be in **exactly** this structure: Yes False Generalization or No False Generalization
+
+Now, Start careful reasoning to determine false generalizations for the input.

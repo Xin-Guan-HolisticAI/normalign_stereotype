@@ -1,0 +1,46 @@
+---
+## **Input generalized belief**:{input_name}
+
+
+**Task**: Extract the *attribute (Y)* and its context from statements structured as "X is/do Y." Format the output as a list of `["context/explanation.. :attribute"]` pairs.
+
+---
+### **Guidelines**:
+1. **Attribute (Y)**: Extract *exactly* as stated (e.g., "live in Silicon Valley" ≠ "Silicon Valley").
+2. **Context/Explanation**: Briefly note the attribute type (e.g., emotion, skill, location) and the ascribed trait.
+---
+### **Examples**:
+1. **Statement**: "Teachers are patient."
+   - **Output**: `["Emotion (brief explanation...) :patient"]`
+
+2. **Statement**: "Engineers work in offices."
+   - **Output**: `["Location (brief explanation...) :work in offices"]`
+
+3. **Statement**: "Athletes have affection to sports."
+   - **Output**: `["explanation (brief explanation...) :have affection to sports"]`
+
+4. **Statement**: "Nurses are compassionate and overworked."
+   - **Output**: `["Emotion (brief explanation...) :compassionate", "Other trait (ascribed occupational condition...) :overworked"]`
+
+---
+### **Output Structure**:
+- Return a list of strings formatted as `["Attribute Type (brief explanation....) :Y"]`.
+- Preserve exact phrasing of Y (no paraphrasing).
+
+---
+### **Example Output**:
+- **Statement**: "Artists are creative."
+  - **Output**: `["trait (brief explanation)... :creative"]`
+
+---
+**Key Notes**:
+- Faithfulness to the original wording of Y is critical (e.g., "live in cities" ≠ "urban").
+- Use "Other trait" for ambiguous or complex attributes, with a concise explanation in parentheses.
+- If multiple attributes exist, split them into separate list items (see Example 4).
+
+---
+Context:
+"""{input_value}"""
+
+### Now find the attributes in the below generalized belief:
+"""{input_name}"""

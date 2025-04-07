@@ -1,0 +1,1 @@
+['The classification will strictly deliver one (!!!) judgment: "Yes" if a generalization falsely claims a group lacks attribute A due to an exception (X), "No" if the group’s association with A remains valid despite X, or "Not sure" if X’s lack of A is insufficient to invalidate the generalization, with the answer starting explicitly with "Yes", "No", or "Not sure". :answer']

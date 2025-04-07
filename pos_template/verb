@@ -1,0 +1,9 @@
+Write a prompt template to Let large language models explain faithfully 'what does "{noun/object/event} {meta_input_name}" means and implies?'. The explanation should address the contextual information.
+
+Context:
+- "{noun/object/event}" is a placeholder for a noun referring to objects or events about {meta_input_name}.
+- {meta_input_value}.
+
+Make sure your output prompt template is concise and keep "{noun/object/event} {meta_input_name}" in your prompt (with some necessary explanations in bracket).
+
+ONLY output the prompt.

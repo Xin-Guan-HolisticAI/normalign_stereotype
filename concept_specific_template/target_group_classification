@@ -1,0 +1,53 @@
+---
+## **Input generalized belief**:{input_name}
+
+
+**Task**: Identify the *target group (X)* from statements structured as "X is/do Y." Format the output as a list of `["category/defining characteristic :target group"]` pairs.
+
+---
+### **Guidelines**:
+1. **Target Group (X)**:
+   - Extract *exactly* as stated (e.g., "Black women" ≠ "Black"; "senior citizens" ≠ "older adults").
+   - Split compound groups into separate entries (e.g., "doctors and nurses" → `["... :doctors", "... :nurses"]`).
+2. **Category/Explanation**:
+   - Classify the defining characteristic (e.g., ethnicity, occupation, age, gender/sexuality).
+   - For multi-dimensional groups, combine categories (e.g., "Asian students" → `Ethnicity + Role`).
+   - Use "Other" for ambiguous cases with a brief explanation (e.g., "beautiful people: Physical trait...").
+
+---
+### **Examples**:
+1. **Statement**: "Medical professionals are overworked."
+   - **Output**: `["group defined by healthcare roles... :medical professionals"]`
+
+2. **Statement**: "Indigenous communities value tradition."
+   - **Output**: `["group defined by cultural heritage... :indigenous communities"]`
+
+3. **Statement**: "LGBTQ+ individuals are resilient."
+   - **Output**: `["group defined by sexual orientation or gender identity... :LGBTQ+ individuals"]`
+
+4. **Statement**: "Beautiful people are shallow."
+   - **Output**: `["group defined by perceived appearance... :beautiful people"]`
+
+5. **Statement**: "Immigrants adapt quickly."
+   - **Output**: `["group defined by migration ...: immigrants"]`
+
+---
+### **Output Structure**:
+- Return a list of strings formatted as `["brief explanation :X"]`.
+- Preserve exact phrasing of X (no paraphrasing).
+
+---
+### **Example Output**:
+- **Statement**: "Environmental activists are passionate."
+  - **Output**: `["Social Role (group defined by advocacy work...) :environmental activists"]`
+
+---
+**Key Notes**:
+- **Faithfulness**: Retain original wording (e.g., "Chinese" ≠ "Asian").
+- **Categories**: Use occupation, ethnicity, age, gender/sexuality, social role, physical trait, or compound labels (e.g., "Ethnicity + Role").
+---
+Context:
+"""{input_value}"""
+
+### Now identify the target group in the below generalized belief:
+"""{input_name}"""

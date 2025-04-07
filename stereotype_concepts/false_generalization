@@ -1,0 +1,2 @@
+A false generalization occurs when a broad claim about an entire group (e.g., "All members have A") is invalidated by any individual in the group missing A (as per a provided list), exposing the error of absolute claims like "all" or "none"; even one exception (e.g., "Penguin: Cannot fly") disproves the uniformity assumption, rendering the generalization false. The judgment must output only one answer ("Yes" if exceptions exist, "No" if none, "Not sure" if unclear), with the answer starting explicitly with "Yes", "No", or "Not sure".
+

@@ -1,0 +1,31 @@
+###Input:
+- The following list contains the Input statement, the generalized belief and the judgement of generalization respectively:
+    "**{input_name}**"
+
+###Task: Faithfully explain and reason whether the judgement of if there is false generalization from a small sample shows that there is stereotype, and why that implies the generalized belief in the format of "X(target group) is/do Y(attribute)" contained by the statement can be a stereotype by false generalizations.
+
+###Rules:
+- **Judgement Rule: input = "Yes False generalization" → judgement = "Yes"; input = "No False generalization" → judgement =  "No"**
+    - The above judgement rule **MUST** be followed regardless of context.
+
+###Criteria:
+- **Judgement: "Yes False generalization" → "Yes"; "No False generalization" → "No"**
+    - The above judgement rule should strictly followed from if there is generalization.
+    - First start with the judgement (Yes/No) by the above rules.
+- Reasoning and Explanation should address the Context for the Input statement, the generalized belief, the judgement of generalization. But, Make sure the explanation is self-contained and **understandable without any context**. It MUST address the following:
+    - Specify What the statement is.
+    - Specify What the generalized belief is implied in the statement.
+    - Specify who are the sampled individual in the target group (preferably with short descriptions).
+    - Specify whether false generalized belief is PREVIOUSLY shown or not on these individuals, and how this is obtained.
+    - Can the statement be classified as stereotype according to the given generalization judgement from small sample?
+        - If Yes, which individuals are counterexamples to this stereotype?
+        - If No, does it mean this is a stereotype?
+
+The following list contains respectively the context for the "Input statement", the "generalized belief", and the "judgement of generalization": {input_value}.
+
+###Output Format:
+["long Explanation and Reasoning... :Yes/No"]
+    - The "short phrase key summary" must be **strictly** follow from the judgement rule and in **exactly** : Yes or No.
+    - the output list only has one element string with one colon.
+
+Now, for "**{input_name}**". faithfully explain and reason whether judgement rule of if there is false generalization from small sample shows there are stereotype.

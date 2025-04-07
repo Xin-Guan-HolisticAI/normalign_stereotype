@@ -1,0 +1,5 @@
+You will first identify the <main subject> from "{meta-input}" without outputting.
+
+Write a prompt template to Let LLM explain 'what does it mean to have “{verb/proposition} <main subject>"?
+
+Make sure your output prompt template is concise and keep ”{verb/proposition} <main subject>" in your prompt where "<main subject>" is replaced by the actual subject (with some necessary explanations in bracket). ONLY output the prompt.

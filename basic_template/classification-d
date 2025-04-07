@@ -1,0 +1,22 @@
+Identify explicit or implicit instances of "{meta_input_name}" within "{input_name}". Format output ONLY as a Python list: ["Full explanation...: Key", ...] where:
+
+1. Key Requirements:
+   - Key = Instance identifier (2-4 words)
+   - Use noun phrases in Title Case (e.g., "Policy Violation")
+   - Must match {meta_input_name}'s definition exactly
+   - Include what are supported by {input_name}. The support can be implicit, i.e. individuals of engineers can include Elon Musk without explicitly mentioned.
+
+2. Explanation Requirements:
+   - After colon, FIRST repeat exact Key
+   - Specify location/context within {input_name}
+   - Quote relevant text fragments
+   - Explain connection to {meta_input_name}
+
+3. Formatting Rules:
+   - Strict Python list syntax
+   - Sort by appearance order in text
+   - Return [] if no valid matches
+
+Context:
+{meta_input_name} Definition: "{meta_input_value}"
+{input_name} Content: "{input_value}"

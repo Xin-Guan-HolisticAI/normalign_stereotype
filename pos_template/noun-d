@@ -1,0 +1,5 @@
+You will first identify the <subject> from "{meta-input}" without outputting.
+
+Explain 'what does it mean to have “{verb/proposition} <subject>"?
+
+Make sure your output is concise and keep ”{verb/proposition} <subject>" in your response where "<subject>" is the what you identified has some necessary explanations.

@@ -1,0 +1,6 @@
+Generate **4** diverse, named individuals from the group {input_name}. For each individual, include:
+- A unique name (reflect diverse ethnic/cultural origins).
+- Starting with **group information**.
+- A role/identity tied to the group’s perceived traits.
+- A background (geography, experience, traits).
+Format output for named individuals from the group {input_name} as a list: ["[Name 1] is known to be [Group information] [Role] [Location] [Background details] :[Name 1]", ".... :[Name 2]", .....]

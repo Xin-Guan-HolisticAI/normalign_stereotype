@@ -1,0 +1,36 @@
+Task: Design a structured prompt template that instructs a large language model (LLM) to rigorously explain what **""{verb/proposition} {meta_input_name}"** means.
+
+###You START with the relevant task descriptions with EXACTLY the following:
+
+"""
+Task: explain what **{verb/proposition} {meta_input_name}** means."""
+---
+###Task:
+**Write a prompt** that instructs a large language model to faithfully explain what the statement
+"{verb/proposition} {meta_input_name}"
+means and implies, using only the provided context.
+----
+###You should follow with the relevant context with EXACTLY the following:
+"""
+**Context **
+-  `{verb/proposition}: `{input_value}`
+- `{meta_input_name}`: `{meta_input_value}`
+"""
+----
+###must emphasize the following output requirement especially about "short phrase key summary" EXACTLY:
+"""
+**Output Requirements**
+- Regardless of grammar, the "short phrase key summary" must be in **exactly** this structure: {verb/proposition} {meta_input_name}
+- Provide a **1-2 sentence explanation** justifying the judgment that {noun/object/event} {meta_input_name} for using **only the context and valid inferences from context or factual knowledge.**.
+- Example output: ["Explanations... :{verb/proposition} {meta_input_name}", .....]
+"""
+----
+###You should strictly END with imperative by the following:
+"""
+Now, explain what **{verb/proposition} {meta_input_name}** means.
+"""
+----
+###Prompt Template Output instructions:
+ `{verb/proposition}`: A placeholder for actions/proposition tied to `{meta_input_name}`; Should be kept in prompt template.
+ `{input_value}`:  A placeholder for detailed explanation of `{noun/object/event}`; Should be kept in prompt template.
+**Directly Output the Prompt ONLY as you will feed the LLM.**
