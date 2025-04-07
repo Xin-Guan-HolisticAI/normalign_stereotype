@@ -1,0 +1,1 @@
+# normalign_stereotype
