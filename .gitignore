@@ -172,3 +172,89 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# Memory files
+memory.json
+memory_*.json
+working_memory.json
+
+# Settings
+settings.yaml
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*.swn
+.project
+.pydevproject
+.settings/
+*.sublime-workspace
+*.sublime-project
+
+# Environment
+.env
+venv/
+env/
+ENV/
+.venv
+.env.local
+.env.*.local
+
+# OS specific files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+*.rdb
+*.pdb
+
+# Logs and temporary files
+logs/
+*.log.*
+tmp/
+temp/
+.temp/
+
+# Backup files
+*.bak
+*.backup
+*~
+*.swp
+*.old
+*.orig
+*.rej
+
+# Local development
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
+docker-compose.override.yml
+docker-compose.*.yml
+!docker-compose.yml
+
+# IDE specific (in addition to existing)
+.history/
+.vscode-test/
+*.code-workspace
+.idea_modules/
+*.iml
+*.iws
+.classpath
+
+# Virtual Environment
+.python-version
+.ruby-version
+.node-version
+.nvmrc
