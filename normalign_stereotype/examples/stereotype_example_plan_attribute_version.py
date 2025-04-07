@@ -42,7 +42,7 @@ def _customize_actuation_template_config(concept_name, mode = "classification"):
         config = {
             "mode": "classification",
             "actuated_llm": "structured_llm",
-            "prompt_template_path": f"concept_specific_template/{concept_name}",
+            "prompt_template_path": f"normalign_stereotype/templates/concept_specific_template/{concept_name}",
             "place_holders": {
                 "meta_input_name_holder": "{meta_input_name}",
                 "meta_input_value_holder": "{meta_input_value}",
@@ -55,7 +55,7 @@ def _customize_actuation_template_config(concept_name, mode = "classification"):
                     "mode": "pos",
                     "actuated_llm": "bullet_llm",
                     "meta_llm": "llm",
-                    "prompt_template_path": f"concept_specific_template/judgement",
+                    "prompt_template_path": f"normalign_stereotype/templates/concept_specific_template/judgement",
                     "place_holders": {
                         "meta_input_name_holder": "{meta_input_name}",
                         "meta_input_value_holder": "{meta_input_value}",
@@ -125,14 +125,14 @@ if __name__ == "__main__":
     )
     for concept_name in ["not_possess"]:
         process_file(
-            f"stereotype_concepts/{concept_name}",
-            f"stereotype_concepts/{concept_name}_ref",
+            f"normalign_stereotype/concepts/stereotype_concepts/{concept_name}",
+            f"normalign_stereotype/concepts/stereotype_concepts/{concept_name}_ref",
             concept_name,
         )
     for concept_name in classification_concept_list:
         process_file(
-            f"stereotype_concepts/{concept_name}",
-            f"stereotype_concepts/{concept_name}_classification_ref",
+            f"normalign_stereotype/concepts/stereotype_concepts/{concept_name}",
+            f"normalign_stereotype/concepts/stereotype_concepts/{concept_name}_classification_ref",
             concept_name,
         )
     for concept_name in concept_to_refer:
@@ -140,12 +140,12 @@ if __name__ == "__main__":
                                 "answer_classification", "generalized_belief_classification",
                                 "target_group_classification"]:
             print(f"making reference for: {concept_name}")
-            plan.make_reference(concept_name, f"stereotype_concepts/{concept_name}_ref")
+            plan.make_reference(concept_name, f"normalign_stereotype/concepts/stereotype_concepts/{concept_name}_ref")
             print("reference tensor: ", plan.concept_registry[concept_name].reference.tensor)
         else:
             plan.make_reference(
                 concept_name,
-                f"stereotype_concepts/{concept_name}_ref",
+                f"normalign_stereotype/concepts/stereotype_concepts/{concept_name}_ref",
                 customize_actuation=_customize_actuation_template_config(concept_name)
             )
 
@@ -242,11 +242,11 @@ if __name__ == "__main__":
                                     "answer_classification", "generalized_belief_classification",
                                     "target_group_classification"]:
                 print(f"making reference for: {concept_name}")
-                plan.make_reference(concept_name, f"stereotype_concepts/{concept_name}_ref")
+                plan.make_reference(concept_name, f"normalign_stereotype/concepts/stereotype_concepts/{concept_name}_ref")
             else:
                 plan.make_reference(
                     concept_name,
-                    f"stereotype_concepts/{concept_name}_ref",
+                    f"normalign_stereotype/concepts/stereotype_concepts/{concept_name}_ref",
                     customize_actuation=_customize_actuation_template_config(concept_name)
                 )
 

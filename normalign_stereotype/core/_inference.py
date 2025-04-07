@@ -161,7 +161,7 @@ class Inference:
                     "mode": "pos",
                     "actuated_llm": "bullet_llm",
                     "meta_llm": "llm",
-                    "prompt_template_path": f"pos_template/{pos}",
+                    "prompt_template_path": f"normalign_stereotype/templates/pos_template/{pos}",
                     "place_holders": {
                         "meta_input_name_holder": "{meta_input_name}",
                         "meta_input_value_holder": "{meta_input_value}",

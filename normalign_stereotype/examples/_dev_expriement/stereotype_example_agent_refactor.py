@@ -169,11 +169,11 @@ globals()[f"{concept_name}_concept"] = Concept(
         "mode": "pos",
         "actuated_llm": "bullet_llm",
         "meta_llm": "llm",
-        "prompt_template_path": "pos_template/noun",
-        "place_holders" : {
+        "prompt_template_path": "normalign_stereotype/templates/pos_template/noun",
+        "place_holders": {
             "meta_input_name_holder": "{meta_input_name}",
             "meta_input_value_holder": "{meta_input_value}",
-            "input_key_holder": "{verb/proposition}",
+            "input_key_holder": "{noun/object/event}",
             "input_value_holder": "{input_value}",
         },
     }

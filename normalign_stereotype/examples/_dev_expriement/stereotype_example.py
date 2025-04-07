@@ -72,7 +72,7 @@ if __name__ == '__main__':
 
     # actuation function for name and actuation
     def pos_actuation(to_actuate_name, pos, concept_name, working_memory=working_memory, bullet_llm=bullet_llm, llm=llm):
-        prompt_meta = open(f"pos_template/{pos}", encoding = "utf-8").read()
+        prompt_meta = open(f"normalign_stereotype/templates/pos_template/{pos}", encoding = "utf-8").read()
         key = to_actuate_name + "(" + concept_name + ")"
         to_actuate_value = working_memory.get(key, to_actuate_name)
         prompt_meta = prompt_meta.replace("{meta_input_name}", to_actuate_name).replace("{meta_input_value}", to_actuate_value)
