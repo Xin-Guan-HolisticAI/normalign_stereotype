@@ -1,10 +1,11 @@
+import json
+import os
+
 from normalign_stereotype.core._modified_llm import ConfiguredLLM, BulletLLM, StructuredLLM
 from normalign_stereotype.core._reference import Reference, cross_action, cross_product, element_action
 from normalign_stereotype.core._concept import Concept
 from normalign_stereotype.core._agent import Agent
-
-import json
-import os
+from normalign_stereotype.core._config import PROJECT_ROOT
 
 
 def _chunk_list_by_value(lst, start_value=None, end_value=None):
@@ -169,7 +170,7 @@ globals()[f"{concept_name}_concept"] = Concept(
         "mode": "pos",
         "actuated_llm": "bullet_llm",
         "meta_llm": "llm",
-        "prompt_template_path": "normalign_stereotype/templates/pos_template/noun",
+        "prompt_template_path": os.path.join(PROJECT_ROOT, f"templates/pos_template/noun"),
         "place_holders": {
             "meta_input_name_holder": "{meta_input_name}",
             "meta_input_value_holder": "{meta_input_value}",
