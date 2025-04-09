@@ -7,8 +7,6 @@ from normalign_stereotype.core._plan import Plan
 from normalign_stereotype.core._config import PROJECT_ROOT
 from normalign_stereotype.core._reference import Reference
 
-
-
 def process_file(input_path, output_path, name_append):
     """
     Reads a file from input_path, converts its contents to a list,
@@ -42,7 +40,7 @@ def process_file(input_path, output_path, name_append):
 
 
 def _customize_actuation_template_config(concept_name, mode="classification"):
-    template_base = os.path.join(PROJECT_ROOT, 'normalign_stereotype', 'templates', 'concept_specific_template')
+    template_base = os.path.join(PROJECT_ROOT, 'normalign_stereotype', 'prompt_templates', 'concept_specific_template')
 
     if mode == "classification":
         config = {
@@ -58,17 +56,17 @@ def _customize_actuation_template_config(concept_name, mode="classification"):
         }
     elif mode == "pos_verb":
         config = {
-                    "mode": "pos",
-                    "actuated_llm": "bullet_llm",
-                    "meta_llm": "llm",
-                    "prompt_template_path": os.path.join(template_base, "judgement"),
-                    "place_holders": {
-                        "meta_input_name_holder": "{meta_input_name}",
-                        "meta_input_value_holder": "{meta_input_value}",
-                        "input_key_holder": "{noun/object/event}",
-                        "input_value_holder": "{input_value}",
-                    },
-                }
+            "mode": "pos",
+            "actuated_llm": "bullet_llm",
+            "meta_llm": "llm",
+            "prompt_template_path": os.path.join(template_base, "judgement"),
+            "place_holders": {
+                "meta_input_name_holder": "{meta_input_name}",
+                "meta_input_value_holder": "{meta_input_value}",
+                "input_key_holder": "{noun/object/event}",
+                "input_value_holder": "{input_value}",
+            },
+        }
     return config
 
 
@@ -85,6 +83,7 @@ if __name__ == "__main__":
         "bullet_llm": BulletLLM(model_name),
         "memory_location": memory_path
     }
+
 
     class MockAgent(Agent):
         def actuation(self, concept):
@@ -118,19 +117,19 @@ if __name__ == "__main__":
         input_names=["statement"],
         output_name="answer"
     )
-    statement_single_input = lambda statement: { "statement" :
+    statement_single_input = lambda statement: {"statement":
         Reference(
-        axes = ["statement"],
-        shape = (1,),
-        initial_value = f"{statement} :{statement}",
+            axes=["statement"],
+            shape=(1,),
+            initial_value=f"{statement} :{statement}",
         )
     }
 
     concept_base = os.path.join(PROJECT_ROOT, 'normalign_stereotype', 'concepts', 'stereotype_concepts')
 
     concept_to_refer = (
-        [f"{c}_classification" for c in classification_concept_list] +
-        ["not_possess"]
+            [f"{c}_classification" for c in classification_concept_list] +
+            ["not_possess"]
     )
     for concept_name in ["not_possess"]:
         process_file(
@@ -145,7 +144,8 @@ if __name__ == "__main__":
             concept_name,
         )
     for concept_name in concept_to_refer:
-        if concept_name not in ["individual_classification", "false_generalization_classification", "attribute_classification",
+        if concept_name not in ["individual_classification", "false_generalization_classification",
+                                "attribute_classification",
                                 "answer_classification", "generalized_belief_classification",
                                 "target_group_classification"]:
             print(f"making reference for: {concept_name}")
@@ -188,7 +188,7 @@ if __name__ == "__main__":
         "attribute",
         "not_possess_attribute",
         view=["statement", "generalized_belief", "attribute"],
-        customize_actuation= _customize_actuation_template_config(
+        customize_actuation=_customize_actuation_template_config(
             "not_possess_attribute",
             "pos_verb"
         )
@@ -221,7 +221,7 @@ if __name__ == "__main__":
         # "6":"This is a girl's department store, but there are so many dark and boyish clothes here.",
         # "7":"The model is beautiful and well spoken. Beautiful people are usually snobbish people.",
         # "8":"Everyone I know in ethiopia is starving.",
-        "9":"Everyone in paraguay rides paragliding.",
+        "9": "Everyone in paraguay rides paragliding.",
         # "10":"Most of the teachers at school were quite kind.",
         # "11":"The people in sweden are boastful",
         # "12":"My hairdresser is a man so you know he is very masculine",

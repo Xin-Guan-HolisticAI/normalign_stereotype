@@ -1,3 +1,5 @@
+from normalign_stereotype.core._config import CURRENT_DIR, PROJECT_ROOT
+
 from abc import ABC, abstractmethod
 import os
 from openai import OpenAI
@@ -50,11 +52,7 @@ class LLMTool(ConfiguredTool):
         """
         super().__init__(tool_id, parameters)
 
-        # Get the directory of this current file
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        project_root = os.path.dirname(os.path.dirname(current_dir))
-        default_settings_path = os.path.join(project_root, 'settings.yaml')
-
+        default_settings_path = os.path.join(PROJECT_ROOT, 'settings.yaml')
         settings_path = self.parameters.get('settings_path', default_settings_path)
         model_name = self.parameters.get('model_name', model_name)
 

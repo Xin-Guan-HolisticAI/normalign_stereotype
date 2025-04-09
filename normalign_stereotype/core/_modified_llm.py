@@ -4,25 +4,26 @@ from typing import List
 import logging
 from normalign_stereotype.core._tools import LLMTool as LLM
 
+
 class ConfiguredLLM(LLM):
-    def __init__(self, model_name = "deepseek-r1-distill-qwen-1.5b",max_retries=5, *args, **kwargs):
+    def __init__(self, model_name="deepseek-r1-distill-qwen-1.5b", max_retries=5, *args, **kwargs):
         super().__init__('temp', {}, model_name)
         self.max_retries = max_retries
 
-    def invoke(self, user_input, max_retries = None):
+    def invoke(self, user_input, max_retries=None):
         if max_retries:
             pass
         else:
             max_retries = self.max_retries
 
         return self._invoke(
-                    prompt=user_input,
-                    temperature=0,
-                )
+            prompt=user_input,
+            temperature=0,
+        )
 
 
 class BulletLLM(LLM):
-    def __init__(self, model_name = "deepseek-r1-distill-qwen-1.5b", max_retries=5, *args, **kwargs):
+    def __init__(self, model_name="deepseek-r1-distill-qwen-1.5b", max_retries=5, *args, **kwargs):
         super().__init__('temp', {}, model_name)
         self.max_retries = max_retries
 
@@ -50,7 +51,7 @@ class BulletLLM(LLM):
                 if not (isinstance(raw_output, str) and ':' in raw_output):
                     raise ValueError(f"Invalid raw output: {raw_output}")
 
-                return raw_output.replace("- ","").replace("/n","")
+                return raw_output.replace("- ", "").replace("/n", "")
 
             except (SyntaxError, ValueError, AttributeError, TypeError) as e:
                 logging.warning(f"Validation failed: {str(e)}")
@@ -58,20 +59,19 @@ class BulletLLM(LLM):
 
         return 'NULL'
 
-    def invoke(self, user_input: str, max_retries = None):
+    def invoke(self, user_input: str, max_retries=None):
 
         if max_retries:
             pass
         else:
-            max_retries= self.max_retries
+            max_retries = self.max_retries
 
         bullet = self.bullet_invoke(user_input, max_retries)
         return str([bullet])
 
 
-
 class StructuredLLM(LLM):
-    def __init__(self,  model_name = "deepseek-r1-distill-qwen-1.5b",max_retries=5, *args, **kwargs):
+    def __init__(self, model_name="deepseek-r1-distill-qwen-1.5b", max_retries=5, *args, **kwargs):
         super().__init__('temp', {}, model_name)
         self.max_retries = max_retries
 
@@ -114,7 +114,7 @@ Example: ["Marie Curie was a Polish-French physicist and chemist who discovered 
                 if not list_match:
                     raise ValueError("No valid list found in output")
 
-                parsed = ast.literal_eval(list_match.group().replace("/n",""))
+                parsed = ast.literal_eval(list_match.group().replace("/n", ""))
                 if not isinstance(parsed, list):
                     raise ValueError("Output is not a list")
 
@@ -133,13 +133,10 @@ Example: ["Marie Curie was a Polish-French physicist and chemist who discovered 
 
         return []
 
-    def invoke(self, user_input: str, max_retries = None):
+    def invoke(self, user_input: str, max_retries=None):
         if max_retries:
             pass
         else:
             max_retries = self.max_retries
 
         return str(self.structured_invoke(user_input, max_retries))
-
-
-
