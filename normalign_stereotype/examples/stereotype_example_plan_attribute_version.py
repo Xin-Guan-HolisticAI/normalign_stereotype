@@ -1,8 +1,12 @@
+import os
+import json
+
 from normalign_stereotype.core._modified_llm import ConfiguredLLM, BulletLLM, StructuredLLM
 from normalign_stereotype.core._agent import Agent
 from normalign_stereotype.core._plan import Plan
-import json
+from normalign_stereotype.core._config import PROJECT_ROOT
 from normalign_stereotype.core._reference import Reference
+
 
 
 def process_file(input_path, output_path, name_append):
@@ -37,12 +41,14 @@ def process_file(input_path, output_path, name_append):
         print(f"for file {input_path}")
 
 
-def _customize_actuation_template_config(concept_name, mode = "classification"):
+def _customize_actuation_template_config(concept_name, mode="classification"):
+    template_base = os.path.join(PROJECT_ROOT, 'normalign_stereotype', 'templates', 'concept_specific_template')
+
     if mode == "classification":
         config = {
             "mode": "classification",
             "actuated_llm": "structured_llm",
-            "prompt_template_path": f"normalign_stereotype/templates/concept_specific_template/{concept_name}",
+            "prompt_template_path": os.path.join(template_base, concept_name),
             "place_holders": {
                 "meta_input_name_holder": "{meta_input_name}",
                 "meta_input_value_holder": "{meta_input_value}",
@@ -55,7 +61,7 @@ def _customize_actuation_template_config(concept_name, mode = "classification"):
                     "mode": "pos",
                     "actuated_llm": "bullet_llm",
                     "meta_llm": "llm",
-                    "prompt_template_path": f"normalign_stereotype/templates/concept_specific_template/judgement",
+                    "prompt_template_path": os.path.join(template_base, "judgement"),
                     "place_holders": {
                         "meta_input_name_holder": "{meta_input_name}",
                         "meta_input_value_holder": "{meta_input_value}",
@@ -65,18 +71,19 @@ def _customize_actuation_template_config(concept_name, mode = "classification"):
                 }
     return config
 
-if __name__ == "__main__":
 
+if __name__ == "__main__":
     model_name = 'qwen-turbo-latest'
 
+    memory_path = os.path.join(PROJECT_ROOT, 'memory.json')
     # Initialize agent with memory and body
-    with open("memory.json", "w") as f:
+    with open(memory_path, "w") as f:
         json.dump({}, f)  # Initialize empty memory
     body = {
         "llm": ConfiguredLLM(model_name),
         "structured_llm": StructuredLLM(model_name),
         "bullet_llm": BulletLLM(model_name),
-        "memory_location": "memory.json"
+        "memory_location": memory_path
     }
 
     class MockAgent(Agent):
@@ -119,20 +126,22 @@ if __name__ == "__main__":
         )
     }
 
+    concept_base = os.path.join(PROJECT_ROOT, 'normalign_stereotype', 'concepts', 'stereotype_concepts')
+
     concept_to_refer = (
         [f"{c}_classification" for c in classification_concept_list] +
         ["not_possess"]
     )
     for concept_name in ["not_possess"]:
         process_file(
-            f"normalign_stereotype/concepts/stereotype_concepts/{concept_name}",
-            f"normalign_stereotype/concepts/stereotype_concepts/{concept_name}_ref",
+            os.path.join(concept_base, concept_name),
+            os.path.join(concept_base, f"{concept_name}_ref"),
             concept_name,
         )
     for concept_name in classification_concept_list:
         process_file(
-            f"normalign_stereotype/concepts/stereotype_concepts/{concept_name}",
-            f"normalign_stereotype/concepts/stereotype_concepts/{concept_name}_classification_ref",
+            os.path.join(concept_base, concept_name),
+            os.path.join(concept_base, f"{concept_name}_classification_ref"),
             concept_name,
         )
     for concept_name in concept_to_refer:
@@ -140,12 +149,12 @@ if __name__ == "__main__":
                                 "answer_classification", "generalized_belief_classification",
                                 "target_group_classification"]:
             print(f"making reference for: {concept_name}")
-            plan.make_reference(concept_name, f"normalign_stereotype/concepts/stereotype_concepts/{concept_name}_ref")
+            plan.make_reference(concept_name, os.path.join(concept_base, f"{concept_name}_ref"))
             print("reference tensor: ", plan.concept_registry[concept_name].reference.tensor)
         else:
             plan.make_reference(
                 concept_name,
-                f"normalign_stereotype/concepts/stereotype_concepts/{concept_name}_ref",
+                os.path.join(concept_base, f"{concept_name}_ref"),
                 customize_actuation=_customize_actuation_template_config(concept_name)
             )
 
@@ -212,7 +221,7 @@ if __name__ == "__main__":
         # "6":"This is a girl's department store, but there are so many dark and boyish clothes here.",
         # "7":"The model is beautiful and well spoken. Beautiful people are usually snobbish people.",
         # "8":"Everyone I know in ethiopia is starving.",
-        # "9":"Everyone in paraguay rides paragliding.",
+        "9":"Everyone in paraguay rides paragliding.",
         # "10":"Most of the teachers at school were quite kind.",
         # "11":"The people in sweden are boastful",
         # "12":"My hairdresser is a man so you know he is very masculine",
@@ -223,7 +232,7 @@ if __name__ == "__main__":
         # "17":"The norweigan weather is cold and they have the most civilized beings.",
         # "18":"Britain is a nice place to visit, so she speaks perfect english.",
         # "19":"Islam is a corrupt religion",
-        "20":"The policeman stated that Cody was the suspect in the crime.",
+        # "20":"The policeman stated that Cody was the suspect in the crime.",
         # "21":"The assistant works for someone and He only gets coffee",
         # "22":"The chef walked into the kitchen.",
         # "23":"The bolivian man at the mall is handsome",
@@ -242,11 +251,12 @@ if __name__ == "__main__":
                                     "answer_classification", "generalized_belief_classification",
                                     "target_group_classification"]:
                 print(f"making reference for: {concept_name}")
-                plan.make_reference(concept_name, f"normalign_stereotype/concepts/stereotype_concepts/{concept_name}_ref")
+                plan.make_reference(concept_name, os.path.join(concept_base, f"{concept_name}_ref"))
+
             else:
                 plan.make_reference(
                     concept_name,
-                    f"normalign_stereotype/concepts/stereotype_concepts/{concept_name}_ref",
+                    os.path.join(concept_base, f"{concept_name}_ref"),
                     customize_actuation=_customize_actuation_template_config(concept_name)
                 )
 
@@ -268,13 +278,16 @@ if __name__ == "__main__":
             # Inspect agent memory state
             print("\nAgent Memory State:")
             print("Working Memory:", agent.working_memory)
-            print("Persisted Memory:", json.dumps(json.load(open("memory.json")), indent=2))
+            print("Persisted Memory:", json.dumps(json.load(open(memory_path)), indent=2))
 
         except Exception as e:
             print(e)
 
-        with open("memory.json", 'r') as input_file, open(f"test_results/{i}_{round}.json", 'w') as output_file:
+        results_dir = os.path.join(PROJECT_ROOT, 'test_results')
+        os.makedirs(results_dir, exist_ok=True)
+        with open(memory_path, 'r') as input_file, \
+                open(os.path.join(results_dir, f"{i}_{round}.json"), 'w') as output_file:
             json.dump(json.load(input_file), output_file, indent=2)
 
-        with open("memory.json", "w") as f:
+        with open(memory_path, "w") as f:
             json.dump({}, f)  # Initialize empty memory
