@@ -36,7 +36,7 @@ class ConfiguredTool(ABC):
 
 
 class LLMTool(ConfiguredTool):
-    def __init__(self, tool_id, parameters, model_name = "deepseek-r1-distill-qwen-1.5b"):
+    def __init__(self, tool_id, parameters, model_name="deepseek-r1-distill-qwen-1.5b"):
         """
         Expected parameters keys:
           - settings_path: Path to the YAML settings file (default: 'settings.yaml')
@@ -50,7 +50,12 @@ class LLMTool(ConfiguredTool):
         """
         super().__init__(tool_id, parameters)
 
-        settings_path = self.parameters.get('settings_path', 'settings.yaml')
+        # Get the directory of this current file
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        project_root = os.path.dirname(os.path.dirname(current_dir))
+        default_settings_path = os.path.join(project_root, 'settings.yaml')
+
+        settings_path = self.parameters.get('settings_path', default_settings_path)
         model_name = self.parameters.get('model_name', model_name)
 
         # Load settings from YAML.

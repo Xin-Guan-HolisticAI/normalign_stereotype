@@ -1,3 +1,5 @@
+import os
+
 from normalign_stereotype.core._reference import Reference, cross_action, cross_product, element_action
 from normalign_stereotype.core._concept import Concept
 from normalign_stereotype.core._pos_analysis import _get_phrase_pos
@@ -170,7 +172,7 @@ class Inference:
                 self.actuation_config = {
                     "mode": "classification",
                     "actuated_llm": "structured_llm",
-                    "prompt_template_path": "basic_template/classification-d",
+                    "prompt_template_path": os.path.join(PROJECT_ROOT, "normalign_stereotype/templates/basic_template/classification-d"),
                     "place_holders": {
                         "meta_input_name_holder": "{meta_input_name}",
                         "meta_input_value_holder": "{meta_input_value}",
@@ -190,7 +192,7 @@ class Inference:
                     "mode": "pos",
                     "actuated_llm": "bullet_llm",
                     "meta_llm": "llm",
-                    "prompt_template_path": f"normalign_stereotype/templates/pos_template/{pos}",
+                    "prompt_template_path": os.path.join(PROJECT_ROOT, f"normalign_stereotype/templates/pos_template/{pos}"),
                     "place_holders": {
                         "meta_input_name_holder": "{meta_input_name}",
                         "meta_input_value_holder": "{meta_input_value}",
