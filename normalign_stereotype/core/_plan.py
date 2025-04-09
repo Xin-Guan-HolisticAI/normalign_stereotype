@@ -1,12 +1,16 @@
-from normalign_stereotype.core._concept import Concept
+from normalign_stereotype.core._concept import Concept, create_concept_reference
 from normalign_stereotype.core._agent import Agent
 from normalign_stereotype.core._inference import Inference
+from normalign_stereotype.core._reference import Reference
+from normalign_stereotype.core._inference import get_default_cognition_config
 
+
+from typing import Optional, Any, Dict
 from collections import defaultdict, deque
 import ast
 
 class Plan:
-    def __init__(self, agent):
+    def __init__(self, agent: Agent):
         self.agent = agent
         self.concept_registry = {}
         self.inference_registry = {}
@@ -28,12 +32,26 @@ class Plan:
         self.concept_registry[concept_name] = concept
         return concept
 
-    def make_reference(self, concept_name, reference_path, customize_actuation=None):
+    def make_reference(self, concept_name, reference: Reference = None, reference_path = None, customize_actuation=None, read_reference=True):
         concept = self.concept_registry[concept_name]
-        concept.read_reference_from_file(reference_path)
-        concept.reference = Inference(concept, self.agent).cognition_configuration()
+        if read_reference:
+            concept.read_reference_from_file(reference_path)
+        else:
+            concept.reference = reference
+        
+        # Get default config
+        perception_config, actuation_config = get_default_cognition_config(concept_name)
+        
+        # Apply custom actuation if provided
         if customize_actuation:
-            self.agent.working_memory["actuation"][concept_name] = customize_actuation
+            actuation_config = customize_actuation
+        
+        # Execute cognition with custom configuration
+        concept.reference = self.agent.cognition(
+            concept_name,
+            perception=self.perception_config,
+            actuation=self.actuation_config
+        )
         return self
 
     def add_inference(self, perception_concept_names, actuation_concept_name, inferred_concept_name, view=None, customize_actuation=None):
@@ -65,7 +83,6 @@ class Plan:
         )
 
         if customize_actuation:
-            inference.customized_actuation_config = True
             inference.actuation_config = customize_actuation
 
         # Store in both registry
@@ -160,7 +177,7 @@ class Plan:
         self.inference_order = ordered
         return self
 
-    def execute(self, input_data=None):
+    def execute(self, input_data: Optional[dict[str, Reference]] = None, input_config: Optional[dict[str, dict[str, dict]]] = None):
         """Execute the plan with optional input data, returning the output concept reference"""
         # Validate I/O configuration
         if not self.input_concept_names or not self.output_concept_name:
@@ -181,7 +198,13 @@ class Plan:
             for name in self.input_concept_names:
                 concept = self.concept_registry[name]
                 concept.reference = input_data[name]
-                concept.reference = Inference(concept, self.agent).cognition_configuration()
+                # Get default config and execute
+                self.make_reference(
+                    concept_name=name,
+                    reference=input_data[name],
+                    customize_actuation=input_config[name]["actuation"],
+                    read_reference=False
+                )
         else:
             # Verify preconfigured references exist
             missing_refs = [

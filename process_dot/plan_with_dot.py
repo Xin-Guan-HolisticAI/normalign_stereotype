@@ -1,13 +1,16 @@
 import re
-from normalign_stereotype.core._plan import Plan
-from normalign_stereotype.core._agent import Agent
-from normalign_stereotype.core._modified_llm import ConfiguredLLM, BulletLLM, StructuredLLM
 import json
 import ast
 import os
+from typing import Dict, List, Set, Optional, Union, Any
+
+from normalign_stereotype.core._plan import Plan
+from normalign_stereotype.core._agent import Agent
+from normalign_stereotype.core._concept import create_concept_reference
+from normalign_stereotype.core._modified_llm import ConfiguredLLM, BulletLLM, StructuredLLM
+from normalign_stereotype.core._inference import Inference
 from normalign_stereotype.core._reference import Reference
 from normalign_stereotype.core._inference import Inference
-from typing import Dict, List, Set, Optional, Union, Any
 
 class DOTParser:
     def __init__(self, dot_file_path: str) -> None:
@@ -96,66 +99,6 @@ class DOTParser:
                 return src
         return None
 
-    @classmethod
-    def _create_concept_reference(cls, concept: str, value: str, summary: Optional[str] = None) -> Reference:
-        """Create a reference for a concept with an explicit value.
-        
-        Args:
-            concept: The name of the concept
-            value: The explicit value to assign to the concept
-            summary: Optional summary for the reference. If None, uses value
-            
-        Returns:
-            A Reference object containing the concept reference with the specified value
-        """
-        if summary is None:
-            summary = value
-
-        return Reference(
-                axes=[concept],
-                shape=(1,),
-                initial_value=f"[{value} :{summary}]"
-            )
-
-    def load_reference(self, concept: str, file_dir: str, customize_actuation: Optional[Any] = None) -> Reference:
-        """Load a reference from a file and set up its cognition configuration.
-        
-        Args:
-            concept: The name of the concept
-            file_dir: Directory containing the reference files
-            customize_actuation: Optional custom actuation configuration
-            
-        Returns:
-            A Reference object containing the configured reference
-            
-        Raises:
-            FileNotFoundError: If the reference file doesn't exist
-            IOError: If there's an error reading the file
-        """
-        # Construct the full path to the concept's reference file
-        reference_path = os.path.join(file_dir, concept)
-        
-        if not os.path.exists(reference_path):
-            raise FileNotFoundError(f"Reference file not found: {reference_path}")
-            
-        try:
-            # Create a reference with the file content
-            with open(reference_path, 'r', encoding='utf-8') as f:
-                content = f.read().strip()
-                reference = self._create_concept_reference(concept, content, concept)
-                
-            # If there's a plan and agent available, set up cognition configuration
-            if hasattr(self, 'plan') and hasattr(self, 'agent'):
-                concept_obj = self.plan.concept_registry[concept]
-                concept_obj.read_reference_from_file(reference_path)
-                concept_obj.reference = Inference(concept_obj, self.agent).cognition_configuration()
-                
-                if customize_actuation:
-                    self.agent.working_memory["actuation"][concept] = customize_actuation
-                    
-            return reference
-        except IOError as e:
-            raise IOError(f"Failed to read reference file {reference_path}: {e}")
 
 def create_plan_from_dot(dot_file_path: str, 
                         model_name: str = 'qwen-turbo-latest', 
@@ -266,24 +209,22 @@ def create_plan_from_dot(dot_file_path: str,
             view=view
         )
     
-    # Set up parser with plan and agent for reference loading
-    parser.plan = plan
-    parser.agent = agent
     
     # Load references and make references for non-input base concepts and classification concepts
     for concept in parser.base_concepts + parser.classifications:
         if concept in input_concepts:
             continue
 
-        concept_obj = plan.concept_registry[concept]
+        # make reference 
         try:
-            # Load reference for each input concept from the reference directory
-            concept_obj.reference = parser.load_reference(concept, reference_dir)
+            file_path = os.path.join(reference_dir, concept)
+            plan.make_reference(concept, reference_path=file_path, read_reference=True)
         except Exception as e:
             print(f"Warning: Could not load reference for concept {concept}: {e}")
             # Fallback to using the concept name as a value if reference loading fails
-            concept_obj.reference = parser._create_concept_reference(concept, concept, concept)
-    
+            plan.make_reference(concept, reference=create_concept_reference(concept, concept, concept), read_reference=False)
+
+
     return plan
 
 if __name__ == "__main__":
@@ -295,6 +236,7 @@ if __name__ == "__main__":
         
         plan = create_plan_from_dot(
             dot_file,
+            reference_dir="normalign_stereotype/concepts/stereotype_concepts",
             input_concepts=input_concepts.keys(),
             output_concept=output_concept
         )
@@ -302,7 +244,7 @@ if __name__ == "__main__":
         # for input concepts, make references
         input_references = {}
         for concept, value in input_concepts.items():
-            input_references[concept] = DOTParser._create_concept_reference(concept, value)
+            input_references[concept] = create_concept_reference(concept, value)
         
         answer_ref = plan.execute(input_references)
         print("\nFinal Inference Results:")

@@ -1,21 +1,24 @@
 from normalign_stereotype.core._reference import Reference, cross_action, cross_product, element_action
 from normalign_stereotype.core._concept import Concept
 from normalign_stereotype.core._pos_analysis import _get_phrase_pos
+from normalign_stereotype.core._agent import Agent
+from normalign_stereotype.core._inference import get_default_cognition_config
+from typing import Optional
 
 class Inference:
-    def __init__(self, concept_to_infer, agent):
-        self.concept_to_infer = concept_to_infer
-        self.agent = agent
+    def __init__(self, concept_to_infer: Concept, agent: Agent):
+        self.concept_to_infer: Concept = concept_to_infer
+        self.agent: Agent = agent
         self.view = []  # Direct list of axes to keep
         self.perception_concepts = []
-        self.the_perception_concept = None
-        self.the_actuation_concept = None
-        self.raw_ref = None
-        self.viewed_ref = None
-        self.configured_ref = None
-        self.perception_config = {}
-        self.actuation_config = {}
-        self.customized_actuation_config = False
+        self.the_perception_concept: Optional[Concept] = None
+        self.the_actuation_concept: Optional[Concept] = None
+        self.raw_ref: Optional[Reference] = None
+        self.viewed_ref: Optional[Reference] = None
+        self.configured_ref: Optional[Reference] = None
+        self.perception_config: Optional[dict] = None
+        self.actuation_config: Optional[dict] = None
+        self.customized_actuation_config: bool = False
 
     def _combine_perception_concepts(self, perception_concepts):
         #use cross-product to make the only perception concept for processing
@@ -73,29 +76,33 @@ class Inference:
 
     def view_change(self):
         """Apply view by selecting specified axes, using all when empty"""
-        if not self.configured_ref:
-            raise ValueError("Configured reference not defined - run cognition_configuration() first")
+        if not self.concept_to_infer.reference:
+            raise ValueError("Concept reference not defined - make a reference first")
 
         # Use all axes if view is empty
-        selected_axes = self.view if self.view else self.configured_ref.axes.copy()
+        selected_axes = self.view if self.view else self.concept_to_infer.reference.axes.copy()
 
         # Validate existence of selected axes
-        available_axes = set(self.configured_ref.axes)
+        available_axes = set(self.concept_to_infer.reference.axes)
         for axis in selected_axes:
             if axis not in available_axes:
                 raise ValueError(f"Axis '{axis}' not found in reference axes")
 
         # Create new reference with selected axes
-        self.viewed_ref = self.configured_ref.slice(*selected_axes)
+        self.viewed_ref = self.concept_to_infer.reference.slice(*selected_axes)
         return self.viewed_ref
 
-    def execute(self):
-        """Execute pipeline with direct axis selection"""
+    def execute(self, perception_config=None, actuation_config=None):
+        """Execute pipeline with direct axis selection and optional custom configuration.
+        
+        Args:
+            perception_config: Optional custom perception configuration
+            actuation_config: Optional custom actuation configuration
+        """
         if not hasattr(self, 'the_perception_concept') or not hasattr(self, 'the_actuation_concept'):
             raise ValueError("Define concepts first with inference_definition()")
 
         agent = self.agent
-
 
         self._combine_perception_concepts(self.perception_concepts)
         perception_ref = agent.perception(self.the_perception_concept)
@@ -106,7 +113,6 @@ class Inference:
         print("     concept to infer", self.concept_to_infer.comprehension["name"])
         print("     perception", self.the_perception_concept.comprehension["name"])
         print("     actuation", self.the_actuation_concept.comprehension["name"])
-
 
         print("!! cross-actioning references:")
         print("     actu:", actuation_ref.axes, actuation_ref.tensor)
@@ -119,8 +125,31 @@ class Inference:
         print(" raw_result", self.raw_ref.axes, self.raw_ref.tensor)
         self.concept_to_infer.reference = self.raw_ref
 
-        self.cognition_configuration()
-        self.concept_to_infer.reference = self.configured_ref
+        # Use custom config if provided by the class or the method, otherwise get default
+        if self.perception_config is None:
+            if perception_config is None or actuation_config is None:
+                default_perception, default_actuation = get_default_cognition_config(
+                    self.concept_to_infer.comprehension["name"]
+                )
+                self.perception_config = perception_config or default_perception
+            else:
+                self.perception_config = perception_config
+        
+        if self.actuation_config is None:
+            if actuation_config is None:
+                default_perception, default_actuation = get_default_cognition_config(
+                    self.concept_to_infer.comprehension["name"]
+                )
+                self.actuation_config = actuation_config or default_actuation
+            else:
+                self.actuation_config = actuation_config
+
+
+        self.concept_to_infer.reference = self.agent.cognition(
+            self.concept_to_infer,
+            perception=self.perception_config,
+            actuation=self.actuation_config
+        )
 
         self.view_change()
         self.concept_to_infer.reference = self.viewed_ref
