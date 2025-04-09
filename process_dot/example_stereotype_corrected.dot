@@ -1,0 +1,39 @@
+digraph inferenceModel {
+    // Base concepts
+    statements [xlabel="{'statements'}"];
+    context [xlabel="{'context'}"];
+
+    // Classification concepts
+    stereotype_detection_classification [xlabel="{'stereotype_detection_classification'}"];
+    bias_analysis_classification [xlabel="{'bias_analysis_classification'}"];
+    stereotype_type_classification [xlabel="{'stereotype_type_classification'}"];
+    severity_classification [xlabel="{'severity_classification'}"];
+    answer_classification [xlabel="{'answer_classification'}"];
+
+    // Intermediate concepts with accumulated views
+    statements -> stereotype_detection [label="perc"];
+    stereotype_detection_classification -> stereotype_detection [label="actu"];
+    stereotype_detection [xlabel="{'statements', 'stereotype_detection'}"];
+
+    context -> stereotype_detection [label="perc"];
+    stereotype_detection [xlabel="{'statements', 'context', 'stereotype_detection'}"];
+
+    stereotype_detection -> bias_analysis [label="perc"];
+    bias_analysis_classification -> bias_analysis [label="actu"];
+    bias_analysis [xlabel="{'statements', 'context', 'stereotype_detection', 'bias_analysis'}"];
+
+    bias_analysis -> stereotype_type [label="perc"];
+    stereotype_type_classification -> stereotype_type [label="actu"];
+    stereotype_type [xlabel="{'statements', 'context', 'stereotype_detection', 'bias_analysis', 'stereotype_type'}"];
+
+    bias_analysis -> severity [label="perc"];
+    severity_classification -> severity [label="actu"];
+    severity [xlabel="{'statements', 'context', 'stereotype_detection', 'bias_analysis', 'severity'}"];
+
+    // Output concept
+    statements -> answer [label="perc"];
+    stereotype_type -> answer [label="perc"];
+    severity -> answer [label="perc"];
+    answer_classification -> answer [label="actu"];
+    answer [xlabel="{'statements', 'context', 'stereotype_detection', 'bias_analysis', 'stereotype_type', 'severity', 'answer'}"];
+} 

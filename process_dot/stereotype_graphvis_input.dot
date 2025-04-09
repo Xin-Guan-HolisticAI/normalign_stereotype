@@ -1,0 +1,159 @@
+digraph inferenceModel{
+
+
+    statements -> generalized_assumptions[label="perc"]
+    generalized_assumptions_classifications -> generalized_assumptions[label="actu"]
+
+    statements -> adopting_subjects[label="perc"]
+    adopting_subjects_classification -> adopting_subjects[label="actu"]
+
+
+    generalized_assumptions -> simple_attribution_form[label="perc"]
+    simple_attribution_form_classification -> simple_attribution_form [label="actu"]
+
+    generalized_assumptions -> intersection_attribution_form[label="perc"]
+    intersection_attribution_form_classification -> intersection_attribution_form [label="actu"]
+
+    generalized_assumptions -> union_attribution_form[label="perc"]
+    union_attribution_form_classification -> union_attribution_form [label="actu"]
+
+    generalized_assumptions -> comparative_attribution_form[label="perc"]
+    comparative_attribution_form_classification -> comparative_attribution_form [label="actu"]
+
+    generalized_assumptions -> superlative_attribution_form[label="perc"]
+    superlative_attribution_form_classification -> superlative_attribution_form[label="actu"]
+
+    generalized_assumptions -> conditional_attribution_form[label="perc"]
+    conditional_attribution_form_classification -> conditional_attribution_form[label="actu"]
+
+
+    simple_attribution_form -> attribution_form[label="perc"]
+    intersection_attribution_form -> attribution_form[label="perc"]
+    union_attribution_form -> attribution_form[label="perc"]
+    comparative_attribution_form -> attribution_form[label="perc"]
+    superlative_attribution_form -> attribution_form[label="perc"]
+    conditional_attribution_form -> attribution_form[label="perc"]
+    attribution_form_classification -> attribution_form[label="actu"]
+
+    attribution_form -> target_groups[label="perc"]
+    target_groups_classification -> target_groups[label="actu"]
+
+    attribution_form -> attributes[label="perc"]
+    attributes_classification -> attributes[label="actu"]
+
+    attribution_form -> generalization_quantifiers[label="perc"]
+    generalization_quantifiers_classification -> generalization_quantifiers[label="actu"]
+
+
+    target_groups -> currently_marginalized_target_groups[label="perc"]
+    currently_marginalized -> currently_marginalized_target_groups[label="actu"]
+
+    target_groups -> historically_marginalized_target_groups[label="perc"]
+    historically_marginalized -> historically_marginalized_target_groups[label="actu"]
+
+    target_groups -> legally_protected_target_groups[label="perc"]
+    legally_protected -> legally_protected_target_groups[label="actu"]
+
+    target_groups -> defining_characteristics[label="perc"]
+    defining_characteristics_classification -> defining_characteristics[label="actu"]
+
+    defining_characteristics -> immutable_defining_characteristics[label="perc"]
+    immutable -> immutable_defining_characteristics[label="actu"]
+
+    immutable_defining_characteristics -> with_immutable_defining_characteristics[label="perc"]
+    with -> with_immutable_defining_characteristics[label="actu"]
+
+    target_groups -> target_groups_with_immutable_defining_characteristics[label="perc"]
+    with_immutable_defining_characteristics -> target_groups_with_immutable_defining_characteristics[label="actu"]
+
+    target_groups -> central_to_personal_identity_target_groups[label="perc"]
+    central_to_personal_identity -> central_to_personal_identity_target_groups[label="actu"]
+
+    currently_marginalized_target_groups -> sensitive_target_group[label="perc"]
+    historically_marginalized_target_groups -> sensitive_target_group[label="perc"]
+    target_groups_with_immutable_defining_characteristics -> sensitive_target_group[label="perc"]
+    legally_protected_target_groups -> sensitive_target_group[label="perc"]
+    central_to_personal_identity_target_groups -> sensitive_target_group[label="perc"]
+    sensitive_target_group_classification -> sensitive_target_group[label="actu"]
+
+
+    attributes -> attributes_cause[label="perc"]
+    cause -> attributes_cause[label="actu"]
+
+    reputation_harm -> attributes_cause_reputation_harm[label="perc"]
+    attributes_cause -> attributes_cause_reputation_harm[label="actu"]
+
+    psychological_harm -> attributes_cause_psychological_harm[label="perc"]
+    attributes_cause -> attributes_cause_psychological_harm[label="actu"]
+
+    social_exclusion_harm -> attributes_cause_social_exclusion_harm[label="perc"]
+    attributes_cause -> attributes_cause_social_exclusion_harm[label="actu"]
+
+    economic_opportunities_harm -> attributes_cause_economic_opportunities_harm[label="perc"]
+    attributes_cause -> attributes_cause_economic_opportunities_harm[label="actu"]
+
+    legal_or_political_harm -> attributes_cause_legal_or_political_harm[label="perc"]
+    attributes_cause -> attributes_cause_legal_or_political_harm[label="actu"]
+
+    systemic_inequalities -> attributes_cause_systemic_inequalities[label="perc"]
+    attributes_cause -> attributes_cause_systemic_inequalities[label="actu"]
+
+    attributes_cause_reputation_harm -> attributes_cause_harm[label="perc"]
+    attributes_cause_psychological_harm -> attributes_cause_harm[label="perc"]
+    attributes_cause_social_exclusion_harm -> attributes_cause_harm[label="perc"]
+    attributes_cause_legal_or_political_harm -> attributes_cause_harm[label="perc"]
+    attributes_cause_economic_opportunities_harm -> attributes_cause_harm[label="perc"]
+    attributes_cause_systemic_inequalities -> attributes_cause_harm[label="perc"]
+    attributes_cause_harm_classification -> attributes_cause_harm[label="actu"]
+
+
+    generalization_quantifiers -> generalization_quantifiers_types[label="perc"]
+    generalization_quantifiers_types_classification -> generalization_quantifiers_types[label="actu"]
+
+
+    attribution_form -> false_generalizations_of_generalized_assumptions[label="perc"]
+    sensitive_target_group -> false_generalizations_of_generalized_assumptions[label="perc"]
+    attributes_cause_harm -> false_generalizations_of_generalized_assumptions[label="perc"]
+    generalization_quantifiers -> false_generalizations_of_generalized_assumptions[label="perc"]
+    generalization_quantifiers_types -> false_generalizations_of_generalized_assumptions[label="perc"]
+    false_generalizations_classification -> false_generalizations_of_generalized_assumptions[label="actu"]
+
+    attribution_form -> oversimplified_generalizations_of_generalized_assumptions[label="perc"]
+    sensitive_target_group -> oversimplified_generalizations_of_generalized_assumptions[label="perc"]
+    attributes_cause_harm -> oversimplified_generalizations_of_generalized_assumptions[label="perc"]
+    generalization_quantifiers -> oversimplified_generalizations_of_generalized_assumptions[label="perc"]
+    generalization_quantifiers_types -> oversimplified_generalizations_of_generalized_assumptions[label="perc"]
+    oversimplified_generalizations_classification -> oversimplified_generalizations_of_generalized_assumptions[label="actu"]
+
+
+    adopting_subjects -> powerful_adopting_subjects[label="perc"]
+    powerful -> powerful_adopting_subjects[label="actu"]
+
+    adopting_subjects -> adversarial_adopting_subjects[label="perc"]
+    adversarial -> adversarial_adopting_subjects[label="actu"]
+
+    adopting_subjects -> mistaken_adopting_subjects[label="perc"]
+    mistaken -> mistaken_adopting_subjects[label="actu"]
+
+    powerful_adopting_subjects -> abnormal_adopting_subjects[label="perc"]
+    adversarial_adopting_subjects -> abnormal_adopting_subjects[label="perc"]
+    mistaken_adopting_subjects -> abnormal_adopting_subjects[label="perc"]
+    abnormal_adopting_subjects_classification -> abnormal_adopting_subjects[label="actu"]
+
+    abnormal_adopting_subjects-> stereotype[label="perc"]
+    generalized_assumptions-> stereotype[label="perc"]
+    false_generalizations_of_generalized_assumptions-> stereotype[label="perc"]
+    oversimplified_generalizations_of_generalized_assumptions -> stereotype[label="perc"]
+    stereotype_classification -> stereotype[label="actu"]
+
+    statements -> answer[label="perc"]
+    stereotype -> answer[label="perc"]
+    answer_classification -> answer[label="actu"]
+}
+
+
+
+
+
+
+

@@ -1,0 +1,29 @@
+digraph G {
+    // Base concepts
+    statements [xlabel="['Analyze the statement for stereotypes']"];
+    context [xlabel="['Consider cultural and social context']"];
+    
+    // Intermediate concepts
+    stereotype_detection [xlabel="['Identify potential stereotypes']"];
+    bias_analysis [xlabel="['Analyze potential biases']"];
+    
+    // Classification concepts
+    stereotype_classification [xlabel="['Classify stereotype type']"];
+    severity_classification [xlabel="['Assess stereotype severity']"];
+    
+    // Output concept
+    answers [xlabel="['Provide final analysis']"];
+    
+    // Perception edges
+    statements -> stereotype_detection [label="perc"];
+    context -> stereotype_detection [label="perc"];
+    stereotype_detection -> bias_analysis [label="perc"];
+    bias_analysis -> stereotype_classification [label="perc"];
+    bias_analysis -> severity_classification [label="perc"];
+    
+    // Actuation edges
+    stereotype_detection -> stereotype_classification [label="actu"];
+    stereotype_detection -> severity_classification [label="actu"];
+    stereotype_classification -> answers [label="actu"];
+    severity_classification -> answers [label="actu"];
+} 

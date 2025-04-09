@@ -1,0 +1,258 @@
+digraph inferenceModel{
+    statements [xlabel="{'statements'}"];
+
+    generalized_assumptions_classifications [xlabel="{'generalized_assumptions_classifications'}"];
+
+    adopting_subjects_classification [xlabel="{'adopting_subjects_classification'}"];
+
+    simple_attribution_form_classification [xlabel="{'simple_attribution_form_classification'}"];
+
+    intersection_attribution_form_classification [xlabel="{'intersection_attribution_form_classification'}"];
+
+    union_attribution_form_classification [xlabel="{'union_attribution_form_classification'}"];
+
+    comparative_attribution_form_classification [xlabel="{'comparative_attribution_form_classification'}"];
+
+    superlative_attribution_form_classification [xlabel="{'superlative_attribution_form_classification'}"];
+
+    conditional_attribution_form_classification [xlabel="{'conditional_attribution_form_classification'}"];
+
+    attribution_form_classification [xlabel="{'attribution_form_classification'}"];
+
+    target_groups_classification [xlabel="{'target_groups_classification'}"];
+
+    attributes_classification [xlabel="{'attributes_classification'}"];
+
+    generalization_quantifiers_classification [xlabel="{'generalization_quantifiers_classification'}"];
+
+    currently_marginalized [xlabel="{'currently_marginalized'}"];
+
+    historically_marginalized [xlabel="{'historically_marginalized'}"];
+
+    legally_protected [xlabel="{'legally_protected'}"];
+
+    defining_characteristics_classification [xlabel="{'defining_characteristics_classification'}"];
+
+    immutable [xlabel="{'immutable'}"];
+
+    with [xlabel="{'with'}"];
+
+    central_to_personal_identity [xlabel="{'central_to_personal_identity'}"];
+
+    sensitive_target_group_classification [xlabel="{'sensitive_target_group_classification'}"];
+
+    cause [xlabel="{'cause'}"];
+
+    reputation_harm [xlabel="{'reputation_harm'}"];
+
+    psychological_harm [xlabel="{'psychological_harm'}"];
+
+    social_exclusion_harm [xlabel="{'social_exclusion_harm'}"];
+
+    economic_opportunities_harm [xlabel="{'economic_opportunities_harm'}"];
+
+    legal_or_political_harm [xlabel="{'legal_or_political_harm'}"];
+
+    systemic_inequalities [xlabel="{'systemic_inequalities'}"];
+
+    attributes_cause_harm_classification [xlabel="{'attributes_cause_harm_classification'}"];
+
+    generalization_quantifiers_types_classification [xlabel="{'generalization_quantifiers_types_classification'}"];
+
+    false_generalizations_classification [xlabel="{'false_generalizations_classification'}"];
+
+    oversimplified_generalizations_classification [xlabel="{'oversimplified_generalizations_classification'}"];
+
+    powerful [xlabel="{'powerful'}"];
+
+    adversarial [xlabel="{'adversarial'}"];
+
+    mistaken [xlabel="{'mistaken'}"];
+
+    abnormal_adopting_subjects_classification [xlabel="{'abnormal_adopting_subjects_classification'}"];
+
+    stereotype_classification [xlabel="{'stereotype_classification'}"];
+
+    answer_classification [xlabel="{'answer_classification'}"];
+
+    statements -> generalized_assumptions[label="perc"]
+    generalized_assumptions_classifications -> generalized_assumptions[label="actu"]
+    generalized_assumptions [xlabel="{'statements', 'generalized_assumptions'}"];
+
+    statements -> adopting_subjects[label="perc"]
+    adopting_subjects_classification -> adopting_subjects[label="actu"]
+    adopting_subjects [xlabel="{'statements', 'adopting_subjects'}"];
+
+    generalized_assumptions -> simple_attribution_form[label="perc"]
+    simple_attribution_form_classification -> simple_attribution_form[label="actu"]
+    simple_attribution_form [xlabel="{'simple_attribution_form', 'statements', 'generalized_assumptions'}"];
+
+    generalized_assumptions -> intersection_attribution_form[label="perc"]
+    intersection_attribution_form_classification -> intersection_attribution_form[label="actu"]
+    intersection_attribution_form [xlabel="{'statements', 'intersection_attribution_form', 'generalized_assumptions'}"];
+
+    generalized_assumptions -> union_attribution_form[label="perc"]
+    union_attribution_form_classification -> union_attribution_form[label="actu"]
+    union_attribution_form [xlabel="{'statements', 'union_attribution_form', 'generalized_assumptions'}"];
+
+    generalized_assumptions -> comparative_attribution_form[label="perc"]
+    comparative_attribution_form_classification -> comparative_attribution_form[label="actu"]
+    comparative_attribution_form [xlabel="{'statements', 'generalized_assumptions', 'comparative_attribution_form'}"];
+
+    generalized_assumptions -> superlative_attribution_form[label="perc"]
+    superlative_attribution_form_classification -> superlative_attribution_form[label="actu"]
+    superlative_attribution_form [xlabel="{'statements', 'superlative_attribution_form', 'generalized_assumptions'}"];
+
+    generalized_assumptions -> conditional_attribution_form[label="perc"]
+    conditional_attribution_form_classification -> conditional_attribution_form[label="actu"]
+    conditional_attribution_form [xlabel="{'statements', 'conditional_attribution_form', 'generalized_assumptions'}"];
+
+    adopting_subjects -> powerful_adopting_subjects[label="perc"]
+    powerful -> powerful_adopting_subjects[label="actu"]
+    powerful_adopting_subjects [xlabel="{'statements', 'adopting_subjects'}"];
+
+    adopting_subjects -> adversarial_adopting_subjects[label="perc"]
+    adversarial -> adversarial_adopting_subjects[label="actu"]
+    adversarial_adopting_subjects [xlabel="{'statements', 'adopting_subjects'}"];
+
+    adopting_subjects -> mistaken_adopting_subjects[label="perc"]
+    mistaken -> mistaken_adopting_subjects[label="actu"]
+    mistaken_adopting_subjects [xlabel="{'statements', 'adopting_subjects'}"];
+
+    simple_attribution_form -> attribution_form[label="perc"]
+    intersection_attribution_form -> attribution_form[label="perc"]
+    union_attribution_form -> attribution_form[label="perc"]
+    comparative_attribution_form -> attribution_form[label="perc"]
+    superlative_attribution_form -> attribution_form[label="perc"]
+    conditional_attribution_form -> attribution_form[label="perc"]
+    attribution_form_classification -> attribution_form[label="actu"]
+    attribution_form [xlabel="{'simple_attribution_form', 'statements', 'generalized_assumptions'}"];
+
+    powerful_adopting_subjects -> abnormal_adopting_subjects[label="perc"]
+    adversarial_adopting_subjects -> abnormal_adopting_subjects[label="perc"]
+    mistaken_adopting_subjects -> abnormal_adopting_subjects[label="perc"]
+    abnormal_adopting_subjects_classification -> abnormal_adopting_subjects[label="actu"]
+    abnormal_adopting_subjects [xlabel="{'statements', 'adopting_subjects'}"];
+
+    attribution_form -> target_groups[label="perc"]
+    target_groups_classification -> target_groups[label="actu"]
+    target_groups [xlabel="{'simple_attribution_form', 'statements', 'generalized_assumptions', 'attribution_form', 'target_groups'}"];
+
+    attribution_form -> attributes[label="perc"]
+    attributes_classification -> attributes[label="actu"]
+    attributes [xlabel="{'simple_attribution_form', 'statements', 'attributes', 'generalized_assumptions', 'attribution_form'}"];
+
+    attribution_form -> generalization_quantifiers[label="perc"]
+    generalization_quantifiers_classification -> generalization_quantifiers[label="actu"]
+    generalization_quantifiers [xlabel="{'simple_attribution_form', 'statements', 'generalization_quantifiers', 'generalized_assumptions', 'attribution_form'}"];
+
+    target_groups -> currently_marginalized_target_groups[label="perc"]
+    currently_marginalized -> currently_marginalized_target_groups[label="actu"]
+    currently_marginalized_target_groups [xlabel="{'simple_attribution_form', 'statements', 'generalized_assumptions', 'attribution_form', 'target_groups'}"];
+
+    target_groups -> historically_marginalized_target_groups[label="perc"]
+    historically_marginalized -> historically_marginalized_target_groups[label="actu"]
+    historically_marginalized_target_groups [xlabel="{'simple_attribution_form', 'statements', 'generalized_assumptions', 'attribution_form', 'target_groups'}"];
+
+    target_groups -> legally_protected_target_groups[label="perc"]
+    legally_protected -> legally_protected_target_groups[label="actu"]
+    legally_protected_target_groups [xlabel="{'simple_attribution_form', 'statements', 'generalized_assumptions', 'attribution_form', 'target_groups'}"];
+
+    target_groups -> defining_characteristics[label="perc"]
+    defining_characteristics_classification -> defining_characteristics[label="actu"]
+    defining_characteristics [xlabel="{'simple_attribution_form', 'statements', 'generalized_assumptions', 'attribution_form', 'target_groups'}"];
+
+    target_groups -> central_to_personal_identity_target_groups[label="perc"]
+    central_to_personal_identity -> central_to_personal_identity_target_groups[label="actu"]
+    central_to_personal_identity_target_groups [xlabel="{'simple_attribution_form', 'statements', 'generalized_assumptions', 'attribution_form', 'target_groups'}"];
+
+    attributes -> attributes_cause[label="perc"]
+    cause -> attributes_cause[label="actu"]
+    attributes_cause [xlabel="{'simple_attribution_form', 'statements', 'attributes', 'generalized_assumptions', 'attribution_form'}"];
+
+    generalization_quantifiers -> generalization_quantifiers_types[label="perc"]
+    generalization_quantifiers_types_classification -> generalization_quantifiers_types[label="actu"]
+    generalization_quantifiers_types [xlabel="{'simple_attribution_form', 'statements', 'generalization_quantifiers', 'generalized_assumptions', 'attribution_form', 'generalization_quantifiers_types'}"];
+
+    defining_characteristics -> immutable_defining_characteristics[label="perc"]
+    immutable -> immutable_defining_characteristics[label="actu"]
+    immutable_defining_characteristics [xlabel="{'simple_attribution_form', 'statements', 'generalized_assumptions', 'attribution_form', 'target_groups', 'defining_characteristics', 'immutable', 'immutable_defining_characteristics'}"];
+
+    reputation_harm -> attributes_cause_reputation_harm[label="perc"]
+    attributes_cause -> attributes_cause_reputation_harm[label="actu"]
+    attributes_cause_reputation_harm [xlabel="{'simple_attribution_form', 'statements', 'attributes', 'generalized_assumptions', 'attribution_form'}"];
+
+    psychological_harm -> attributes_cause_psychological_harm[label="perc"]
+    attributes_cause -> attributes_cause_psychological_harm[label="actu"]
+    attributes_cause_psychological_harm [xlabel="{'simple_attribution_form', 'statements', 'attributes', 'generalized_assumptions', 'attribution_form'}"];
+
+    social_exclusion_harm -> attributes_cause_social_exclusion_harm[label="perc"]
+    attributes_cause -> attributes_cause_social_exclusion_harm[label="actu"]
+    attributes_cause_social_exclusion_harm [xlabel="{'simple_attribution_form', 'statements', 'attributes', 'generalized_assumptions', 'attribution_form'}"];
+
+    economic_opportunities_harm -> attributes_cause_economic_opportunities_harm[label="perc"]
+    attributes_cause -> attributes_cause_economic_opportunities_harm[label="actu"]
+    attributes_cause_economic_opportunities_harm [xlabel="{'simple_attribution_form', 'statements', 'attributes', 'generalized_assumptions', 'attribution_form'}"];
+
+    legal_or_political_harm -> attributes_cause_legal_or_political_harm[label="perc"]
+    attributes_cause -> attributes_cause_legal_or_political_harm[label="actu"]
+    attributes_cause_legal_or_political_harm [xlabel="{'simple_attribution_form', 'statements', 'attributes', 'generalized_assumptions', 'attribution_form'}"];
+
+    systemic_inequalities -> attributes_cause_systemic_inequalities[label="perc"]
+    attributes_cause -> attributes_cause_systemic_inequalities[label="actu"]
+    attributes_cause_systemic_inequalities [xlabel="{'simple_attribution_form', 'statements', 'attributes', 'generalized_assumptions', 'attribution_form'}"];
+
+    immutable_defining_characteristics -> with_immutable_defining_characteristics[label="perc"]
+    with -> with_immutable_defining_characteristics[label="actu"]
+    with_immutable_defining_characteristics [xlabel="{'simple_attribution_form', 'defining_characteristics', 'attribution_form', 'with', 'statements', 'generalized_assumptions', 'immutable', 'target_groups', 'with_immutable_defining_characteristics', 'immutable_defining_characteristics'}"];
+
+    attributes_cause_reputation_harm -> attributes_cause_harm[label="perc"]
+    attributes_cause_psychological_harm -> attributes_cause_harm[label="perc"]
+    attributes_cause_social_exclusion_harm -> attributes_cause_harm[label="perc"]
+    attributes_cause_economic_opportunities_harm -> attributes_cause_harm[label="perc"]
+    attributes_cause_legal_or_political_harm -> attributes_cause_harm[label="perc"]
+    attributes_cause_systemic_inequalities -> attributes_cause_harm[label="perc"]
+    attributes_cause_harm_classification -> attributes_cause_harm[label="actu"]
+    attributes_cause_harm [xlabel="{'simple_attribution_form', 'statements', 'attributes', 'generalized_assumptions', 'attribution_form'}"];
+
+    target_groups -> target_groups_with_immutable_defining_characteristics[label="perc"]
+    with_immutable_defining_characteristics -> target_groups_with_immutable_defining_characteristics[label="actu"]
+    target_groups_with_immutable_defining_characteristics [xlabel="{'simple_attribution_form', 'statements', 'generalized_assumptions', 'attribution_form', 'target_groups'}"];
+
+    currently_marginalized_target_groups -> sensitive_target_group[label="perc"]
+    historically_marginalized_target_groups -> sensitive_target_group[label="perc"]
+    legally_protected_target_groups -> sensitive_target_group[label="perc"]
+    central_to_personal_identity_target_groups -> sensitive_target_group[label="perc"]
+    target_groups_with_immutable_defining_characteristics -> sensitive_target_group[label="perc"]
+    sensitive_target_group_classification -> sensitive_target_group[label="actu"]
+    sensitive_target_group [xlabel="{'simple_attribution_form', 'statements', 'generalized_assumptions', 'attribution_form', 'target_groups'}"];
+
+    attribution_form -> false_generalizations_of_generalized_assumptions[label="perc"]
+    generalization_quantifiers -> false_generalizations_of_generalized_assumptions[label="perc"]
+    generalization_quantifiers_types -> false_generalizations_of_generalized_assumptions[label="perc"]
+    attributes_cause_harm -> false_generalizations_of_generalized_assumptions[label="perc"]
+    sensitive_target_group -> false_generalizations_of_generalized_assumptions[label="perc"]
+    false_generalizations_classification -> false_generalizations_of_generalized_assumptions[label="actu"]
+    false_generalizations_of_generalized_assumptions [xlabel="{'simple_attribution_form', 'statements', 'attributes', 'generalized_assumptions', 'attribution_form'}"];
+
+    attribution_form -> oversimplified_generalizations_of_generalized_assumptions[label="perc"]
+    generalization_quantifiers -> oversimplified_generalizations_of_generalized_assumptions[label="perc"]
+    generalization_quantifiers_types -> oversimplified_generalizations_of_generalized_assumptions[label="perc"]
+    attributes_cause_harm -> oversimplified_generalizations_of_generalized_assumptions[label="perc"]
+    sensitive_target_group -> oversimplified_generalizations_of_generalized_assumptions[label="perc"]
+    oversimplified_generalizations_classification -> oversimplified_generalizations_of_generalized_assumptions[label="actu"]
+    oversimplified_generalizations_of_generalized_assumptions [xlabel="{'simple_attribution_form', 'statements', 'attributes', 'generalized_assumptions', 'attribution_form'}"];
+
+    generalized_assumptions -> stereotype[label="perc"]
+    abnormal_adopting_subjects -> stereotype[label="perc"]
+    false_generalizations_of_generalized_assumptions -> stereotype[label="perc"]
+    oversimplified_generalizations_of_generalized_assumptions -> stereotype[label="perc"]
+    stereotype_classification -> stereotype[label="actu"]
+    stereotype [xlabel="{'simple_attribution_form', 'attributes', 'adopting_subjects', 'attribution_form', 'false_generalizations_of_generalized_assumptions', 'stereotype', 'statements', 'generalized_assumptions', 'abnormal_adopting_subjects', 'oversimplified_generalizations_of_generalized_assumptions'}"];
+
+    statements -> answer[label="perc"]
+    stereotype -> answer[label="perc"]
+    answer_classification -> answer[label="actu"]
+    answer [xlabel="{'simple_attribution_form', 'answer', 'attributes', 'adopting_subjects', 'attribution_form', 'false_generalizations_of_generalized_assumptions', 'stereotype', 'statements', 'generalized_assumptions', 'abnormal_adopting_subjects', 'oversimplified_generalizations_of_generalized_assumptions'}"];
+
+}
