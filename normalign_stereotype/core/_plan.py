@@ -1,22 +1,21 @@
 from normalign_stereotype.core._concept import Concept, create_concept_reference
-from normalign_stereotype.core._agent import Agent
+from normalign_stereotype.core._agent import Agent, get_default_working_config
 from normalign_stereotype.core._inference import Inference
 from normalign_stereotype.core._reference import Reference
-from normalign_stereotype.core._inference import get_default_cognition_config
 
 
-from typing import Optional, Any, Dict
+from typing import Optional, Any, Dict, List
 from collections import defaultdict, deque
 import ast
 
 class Plan:
     def __init__(self, agent: Agent):
         self.agent = agent
-        self.concept_registry = {}
-        self.inference_registry = {}
-        self.inference_order = []
-        self.input_concept_names = []
-        self.output_concept_name = None
+        self.concept_registry: Dict[str, Concept] = {}
+        self.inference_registry: Dict[str, Inference] = {}
+        self.inference_order: List[Inference] = []
+        self.input_concept_names: List[str] = []
+        self.output_concept_name: Optional[str] = None
 
     def configure_io(self, input_names, output_name):
         for name in input_names + [output_name]:
@@ -32,7 +31,7 @@ class Plan:
         self.concept_registry[concept_name] = concept
         return concept
 
-    def make_reference(self, concept_name, reference: Reference = None, reference_path = None, customize_actuation=None, read_reference=True):
+    def make_reference(self, concept_name, reference: Reference = None, reference_path = None, actuation_working_config=None, read_reference=True):
         concept = self.concept_registry[concept_name]
         if read_reference:
             concept.read_reference_from_file(reference_path)
@@ -40,21 +39,21 @@ class Plan:
             concept.reference = reference
         
         # Get default config
-        perception_config, actuation_config = get_default_cognition_config(concept_name)
+        perception_config, actuation_config = get_default_working_config(concept_name)
         
         # Apply custom actuation if provided
-        if customize_actuation:
-            actuation_config = customize_actuation
+        if actuation_working_config:
+            actuation_config = actuation_working_config
         
         # Execute cognition with custom configuration
         concept.reference = self.agent.cognition(
             concept_name,
-            perception=self.perception_config,
-            actuation=self.actuation_config
+            perception_working_config=self.perception_config,
+            actuation_working_config=self.actuation_config
         )
         return self
 
-    def add_inference(self, perception_concept_names, actuation_concept_name, inferred_concept_name, view=None, customize_actuation=None):
+    def add_inference(self, perception_concept_names, actuation_concept_name, inferred_concept_name, view=None, actuation_working_config=None, perception_working_config=None):
         """Now includes optional view configuration and registry tracking"""
         # Validate concepts exist
         for name in perception_concept_names + [actuation_concept_name, inferred_concept_name]:
@@ -79,12 +78,11 @@ class Plan:
 
         inference.inference_definition(
             perception_concepts=perception_concepts,
-            actuation_concept=actuation_concept
+            actuation_concept=actuation_concept,
+            perception_working_config=perception_working_config if perception_working_config else None,
+            actuation_working_config=actuation_working_config if actuation_working_config else None
         )
-
-        if customize_actuation:
-            inference.actuation_config = customize_actuation
-
+        
         # Store in both registry
         self.inference_registry[inference_key] = inference
         return self
@@ -202,7 +200,7 @@ class Plan:
                 self.make_reference(
                     concept_name=name,
                     reference=input_data[name],
-                    customize_actuation=input_config[name]["actuation"],
+                    actuation_working_config=input_config[name]["actuation"],
                     read_reference=False
                 )
         else:

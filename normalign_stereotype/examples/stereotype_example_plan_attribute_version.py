@@ -155,7 +155,7 @@ if __name__ == "__main__":
             plan.make_reference(
                 concept_name,
                 os.path.join(concept_base, f"{concept_name}_ref"),
-                customize_actuation=_customize_actuation_template_config(concept_name)
+                actuation_working_config=_customize_actuation_template_config(concept_name)
             )
 
     # Configure inferences
@@ -188,7 +188,7 @@ if __name__ == "__main__":
         "attribute",
         "not_possess_attribute",
         view=["statement", "generalized_belief", "attribute"],
-        customize_actuation= _customize_actuation_template_config(
+        actuation_working_config= _customize_actuation_template_config(
             "not_possess_attribute",
             "pos_verb"
         )
@@ -257,7 +257,7 @@ if __name__ == "__main__":
                 plan.make_reference(
                     concept_name,
                     os.path.join(concept_base, f"{concept_name}_ref"),
-                    customize_actuation=_customize_actuation_template_config(concept_name)
+                    actuation_working_config=_customize_actuation_template_config(concept_name)
                 )
 
         statement_input = statement_single_input(

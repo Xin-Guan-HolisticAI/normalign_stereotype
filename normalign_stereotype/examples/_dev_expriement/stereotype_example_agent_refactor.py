@@ -94,7 +94,7 @@ globals()[f"{concept_name}_concept"] = Concept(
         "mode": "memory_retrieval"
     }
 
-    globals()[f"{concept_name}_ref_cog"] = agent.cognition(globals()[f"{concept_name}_concept"], perception=perception_config)
+    globals()[f"{concept_name}_ref_cog"] = agent.cognition(globals()[f"{concept_name}_concept"], perception_working_config=perception_config)
 
     concept_name = "individuals_classification"
     exec_globals = globals().copy()

@@ -1,0 +1,42 @@
+digraph inferenceModel{
+    
+    From a statement, Z(something) is X(something) that R(an action) Y(something).
+    stereotype from a statement is belief from ((belief contains false generalization) of belief)  from statement
+
+    create_by 
+    ma
+
+
+
+    "S"  [xlabel="{'S'}"]
+
+    "x?"[xlabel="{'x?'}"]
+    "y?"[xlabel="{'y?'}"]
+
+    "S" -> "x<S"[label="perc"]
+    "x?" -> "x<S"[label="actu"]
+    "x<S"  [xlabel = "{'x<S', 'S'}"]
+
+    "S" -> "y<S"[label="perc"]
+    "y?" -> "y<S"[label="actu"]
+    "y<S" [xlabel = "{'y<S', 'S'}"]
+
+    "R" [xlabel = "R"]
+
+    "x<S", "y<S", "S" -> "xRy<S"[label="perc"]
+    "R" -> "xRy<S"[label="actu"]
+    "(xRy@x)<S" [xlabel = "{'y<S', 'S'}"]
+
+    "(xRy@x)<S", "y<S" -> "y<(xRy@x)<S"[label="perc"]
+    "y? -> "y<(xRy@x)<S"[label="actu"]
+    "y<(xRy@x)<S" [xlabel = "{'y<S', 'S'}"]
+
+    "z?"[xlabel="{'z?'}"]
+
+    
+    "y<(xRy@x)<S" -> "z<S"[label="perc"]
+    "z?" -> "z<S"[label="actu"]
+    "z<S" [xlabel = "{'z<S', 'S'}"]
+
+
+}

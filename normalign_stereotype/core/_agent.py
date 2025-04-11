@@ -6,6 +6,77 @@ from normalign_stereotype.core._reference import element_action
 from normalign_stereotype.core._concept import Concept
 import re
 
+def get_default_working_config(concept_name):
+    """Get default cognition configuration based on concept name."""
+    perception_config = {
+        "mode": "memory_retrieval"
+    }
+
+    if "classification" in concept_name:
+        actuation_config = {
+            "mode": "classification",
+            "actuated_llm": "structured_llm",
+            "prompt_template_path": "basic_template/classification-d",
+            "place_holders": {
+                "meta_input_name_holder": "{meta_input_name}",
+                "meta_input_value_holder": "{meta_input_value}",
+                "input_key_holder": "{input_name}",
+                "input_value_holder": "{input_value}",
+            },
+        }
+    else:
+        pos = _get_phrase_pos(concept_name)
+        input_key_holder = "{input_name}"
+        if pos == "noun":
+            input_key_holder = "{verb/proposition}"
+        elif pos == "verb":
+            input_key_holder = "{noun/object/event}"
+
+        actuation_config = {
+            "mode": "pos",
+            "actuated_llm": "bullet_llm",
+            "meta_llm": "llm",
+            "prompt_template_path": f"normalign_stereotype/templates/pos_template/{pos}",
+            "place_holders": {
+                "meta_input_name_holder": "{meta_input_name}",
+                "meta_input_value_holder": "{meta_input_value}",
+                "input_key_holder": input_key_holder,
+                "input_value_holder": "{input_value}",
+            },
+        }
+    
+    return perception_config, actuation_config
+
+
+def customize_actuation_working_config(concept_name, prompt_template_dir, mode="llm_prompt_two_replacement", **kwargs):
+
+    prompt_template_path = os.path.join(prompt_template_dir, concept_name)
+
+    if not os.path.exists(prompt_template_path):
+        raise FileNotFoundError(f"Prompt template not found: {prompt_template_path}")
+    
+    actuation_working_config = {
+        "mode": mode,
+        "prompt_template_path": prompt_template_path,
+        "place_holders": {
+            "meta_input_name_holder": "{meta_input_name}",
+            "meta_input_value_holder": "{meta_input_value}",
+            "input_key_holder": "{input_name}",
+            "input_value_holder": "{input_value}",
+        }
+    }
+
+    if mode == "llm_prompt_two_replacement":
+        actuation_working_config["actuated_llm"] = "structured_llm"
+        
+    elif mode == "llm_prompt_generation_replacement":
+        actuation_working_config["meta_llm"] = "llm"
+        actuation_working_config["actuated_llm"] = "bullet_llm"
+
+    actuation_working_config.update(kwargs)
+
+    return actuation_working_config
+
 class Agent:
     def __init__(self, body):
         self._validate_body(body)
@@ -22,7 +93,7 @@ class Agent:
         if 'memory_location' not in body or not os.path.exists(body['memory_location']):
             raise ValueError("Valid file path required for memory_location")
 
-    def cognition(self, concept, mode = "memory_bullet", **kwargs):
+    def cognition(self, concept, mode = "memory_bullet", perception_working_config = None, actuation_working_config = None, **kwargs):
         """Process values into names and store"""
 
         if not isinstance(concept, Concept):
@@ -32,8 +103,8 @@ class Agent:
         concept_name = concept.comprehension.get("name")
 
         if mode == "memory_bullet":
-            self.working_memory['perception'][concept_name] = kwargs.get('perception', {"mode": "memory_retrieval"})
-            self.working_memory['actuation'][concept_name] = kwargs.get('actuation')
+            self.working_memory['perception'][concept_name] = perception_working_config or {"mode": "memory_retrieval"}
+            self.working_memory['actuation'][concept_name] = actuation_working_config or {"mode": "classification"}
             _cognition_memory_bullet_element = lambda bullet: self._cognition_memory_bullet(
                 bullet,
                 concept_name,
@@ -217,25 +288,44 @@ class Agent:
                 meta_llm,
                 actuated_llm,
             ))
-
-            if mode == "customized_prompt":
+            return element_action(_pos_actuation, [reference])
+        
+        if mode == "llm_prompt_generation_replacement":
+                meta_prompt_llm = self.body.get(concept_configuration.get('meta_prompt_llm'))
                 actuated_llm = self.body.get(concept_configuration.get('actuated_llm'))
-                meta_llm = self.body.get(concept_configuration.get('meta_llm'))
                 prompt_template_path = concept_configuration.get('prompt_template_path')
-                pos_meta_template = open(prompt_template_path, encoding="utf-8").read()
+                meta_prompt_template = open(prompt_template_path, encoding="utf-8").read()
                 place_holders = concept_configuration.get('place_holders')
 
-                _pos_actuation = lambda name: (
+                _llm_prompt_generation_replacement_actuation = lambda name: (
                     self._actuation_llm_prompt_generation_replacement(
                         name,
-                        pos_meta_template,
+                        meta_prompt_template,
                         place_holders,
                         _key_memory_concept,
-                        meta_llm,
+                        meta_prompt_llm,
                         actuated_llm,
                     ))
+                return element_action(_llm_prompt_generation_replacement_actuation, [reference])
 
-            return element_action(_pos_actuation, [reference])
+        if mode == "llm_prompt_two_replacement":
+            actuated_llm = self.body.get(concept_configuration.get('actuated_llm'))
+            prompt_template_path = concept_configuration.get('prompt_template_path')
+            prompt_template = open(prompt_template_path, encoding="utf-8").read()
+            place_holders = concept_configuration.get('place_holders')
+
+            _classification_actuation = lambda name: (
+                self._actuation_llm_prompt_two_replacement(
+                name,
+                prompt_template,
+                place_holders,
+                _key_memory_concept,
+                actuated_llm,
+            ))
+
+            return element_action(_classification_actuation, [reference])
+
+
         raise ValueError(f"Unknown actuation mode: {mode}")
 
 

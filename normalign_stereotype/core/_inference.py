@@ -3,9 +3,9 @@ import os
 from normalign_stereotype.core._reference import Reference, cross_action, cross_product, element_action
 from normalign_stereotype.core._concept import Concept
 from normalign_stereotype.core._pos_analysis import _get_phrase_pos
-from normalign_stereotype.core._agent import Agent
-from normalign_stereotype.core._inference import get_default_cognition_config
+from normalign_stereotype.core._agent import Agent, get_default_working_config
 from typing import Optional
+
 
 class Inference:
     def __init__(self, concept_to_infer: Concept, agent: Agent):
@@ -18,8 +18,8 @@ class Inference:
         self.raw_ref: Optional[Reference] = None
         self.viewed_ref: Optional[Reference] = None
         self.configured_ref: Optional[Reference] = None
-        self.perception_config: Optional[dict] = None
-        self.actuation_config: Optional[dict] = None
+        self.perception_working_config_concept_to_infer: Optional[dict] = None
+        self.actuation_working_config_concept_to_infer: Optional[dict] = None
         self.customized_actuation_config: bool = False
 
     def _combine_perception_concepts(self, perception_concepts):
@@ -46,7 +46,7 @@ class Inference:
             {"mode": "memory_retrieval"}
 
 
-    def inference_definition(self, perception_concepts, actuation_concept):
+    def inference_definition(self, perception_concepts, actuation_concept, perception_working_config=None, actuation_working_config=None):
         """Store concepts for cross-action while deferring execution.
 
         Args:
@@ -69,6 +69,11 @@ class Inference:
         self.perception_concepts = perception_concepts
         self.the_actuation_concept = actuation_concept
         # self._combine_perception_concepts(self.perception_concepts)
+
+        if perception_working_config:
+            self.perception_working_config_concept_to_infer = perception_working_config
+        if actuation_working_config:
+            self.actuation_working_config_concept_to_infer = actuation_working_config
 
     def view_definition(self, axes_list):
         """Directly set which axes to keep in the view"""
@@ -128,29 +133,29 @@ class Inference:
         self.concept_to_infer.reference = self.raw_ref
 
         # Use custom config if provided by the class or the method, otherwise get default
-        if self.perception_config is None:
-            if perception_config is None or actuation_config is None:
-                default_perception, default_actuation = get_default_cognition_config(
+        if perception_config is None:
+            if self.perception_working_config_concept_to_infer is None:
+                default_perception, default_actuation = get_default_working_config(
                     self.concept_to_infer.comprehension["name"]
                 )
-                self.perception_config = perception_config or default_perception
-            else:
-                self.perception_config = perception_config
+                self.perception_working_config_concept_to_infer = perception_config or default_perception
+        else:
+            self.perception_working_config_concept_to_infer = perception_config
         
-        if self.actuation_config is None:
-            if actuation_config is None:
-                default_perception, default_actuation = get_default_cognition_config(
+        if actuation_config is None:
+            if self.actuation_working_config_concept_to_infer is None:
+                default_perception, default_actuation = get_default_working_config(
                     self.concept_to_infer.comprehension["name"]
                 )
-                self.actuation_config = actuation_config or default_actuation
-            else:
-                self.actuation_config = actuation_config
+                self.actuation_working_config_concept_to_infer = actuation_config or default_actuation
+        else:
+            self.actuation_working_config_concept_to_infer = actuation_config
 
 
         self.concept_to_infer.reference = self.agent.cognition(
             self.concept_to_infer,
-            perception=self.perception_config,
-            actuation=self.actuation_config
+            perception_working_config=self.perception_working_config_concept_to_infer,
+            actuation_working_config=self.actuation_working_config_concept_to_infer
         )
 
         self.view_change()
@@ -163,13 +168,13 @@ class Inference:
 
         concept_name = self.concept_to_infer.comprehension["name"]
 
-        self.perception_config = {
+        self.perception_working_config_concept_to_infer = {
             "mode": "memory_retrieval"
         }
 
         if not self.customized_actuation_config:
             if "classification" in concept_name:
-                self.actuation_config = {
+                self.actuation_working_config_concept_to_infer = {
                     "mode": "classification",
                     "actuated_llm": "structured_llm",
                     "prompt_template_path": os.path.join(PROJECT_ROOT, "normalign_stereotype/templates/basic_template/classification-d"),
@@ -188,7 +193,7 @@ class Inference:
                 elif pos == "verb":
                     input_key_holder = "{noun/object/event}"
 
-                self.actuation_config = {
+                self.actuation_working_config_concept_to_infer = {
                     "mode": "pos",
                     "actuated_llm": "bullet_llm",
                     "meta_llm": "llm",
@@ -203,8 +208,8 @@ class Inference:
         if execution:
             self.configured_ref = self.agent.cognition(
                 self.concept_to_infer,
-                perception=self.perception_config,
-                actuation=self.actuation_config
+                perception_working_config=self.perception_working_config_concept_to_infer,
+                actuation_working_config=self.actuation_working_config_concept_to_infer
             )
             return self.configured_ref
 

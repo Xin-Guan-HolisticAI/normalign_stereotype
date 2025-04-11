@@ -1,11 +1,13 @@
+from typing import Any
+
 class Reference:
     def __init__(self, axes, shape, initial_value=None, skip_value="@#SKIP#@"):
         if len(axes) != len(shape):
             raise ValueError("Axes and shape must have the same length")
-        self.axes = axes
-        self.shape = shape
-        self.skip_value = skip_value
-        self.data = self._create_nested_list(shape, initial_value)
+        self.axes: list[str] = axes
+        self.shape: tuple[int, ...] = shape
+        self.skip_value: str = skip_value
+        self.data: list[Any] = self._create_nested_list(shape, initial_value)
 
     @staticmethod
     def _create_nested_list(shape, initial_value):

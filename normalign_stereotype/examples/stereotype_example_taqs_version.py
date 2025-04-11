@@ -1,5 +1,5 @@
 from normalign_stereotype.core._modified_llm import ConfiguredLLM, BulletLLM, StructuredLLM
-from normalign_stereotype.core._agent import Agent
+from normalign_stereotype.core._agent import Agent, get_default_working_config
 from normalign_stereotype.core._plan import Plan
 import json
 from normalign_stereotype.core._reference import Reference
@@ -146,7 +146,7 @@ if __name__ == "__main__":
             plan.make_reference(
                 concept_name,
                 f"normalign_stereotype/concepts/stereotype_concepts/{concept_name}_ref",
-                customize_actuation=_customize_actuation_template_config(concept_name)
+                actuation_working_config=_customize_actuation_template_config(concept_name)
             )
 
     # Configure inferences
@@ -179,7 +179,7 @@ if __name__ == "__main__":
         "attribute",
         "not_possess_attribute",
         view=["statement", "generalized_belief", "attribute"],
-        customize_actuation= _customize_actuation_template_config(
+        actuation_working_config= _customize_actuation_template_config(
             "not_possess_attribute",
             "pos_verb"
         )
@@ -247,7 +247,7 @@ if __name__ == "__main__":
                 plan.make_reference(
                     concept_name,
                     f"normalign_stereotype/concepts/stereotype_concepts/{concept_name}_ref",
-                    customize_actuation=_customize_actuation_template_config(concept_name)
+                    actuation_working_config=_customize_actuation_template_config(concept_name)
                 )
 
         statement_input = statement_single_input(

@@ -1,4 +1,9 @@
 digraph inferenceModelMetaphor{
+    
+    ## that the figurative language element directly maps a specific, tangible entity (from the figurative language element) onto an abstract, complex theme (from the figurative language element)"
+    ## if All three components (figurative device, tangible entity, abstract theme) are present.
+    ## if The tangible entity transfers symbolic meaning to the abstract theme without intermediaries.
+ 
 
     "extract"  [xlabel="{'extract'}"]
 
