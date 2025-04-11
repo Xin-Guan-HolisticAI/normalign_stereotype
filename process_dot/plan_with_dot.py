@@ -10,7 +10,7 @@ from normalign_stereotype.core._concept import create_concept_reference
 from normalign_stereotype.core._modified_llm import ConfiguredLLM, BulletLLM, StructuredLLM
 from normalign_stereotype.core._inference import Inference
 from normalign_stereotype.core._reference import Reference
-from normalign_stereotype.core._inference import Inference
+
 
 class DOTParser:
     def __init__(self, dot_file_path: str) -> None:
@@ -103,6 +103,7 @@ class DOTParser:
 def create_plan_from_dot(dot_file_path: str, 
                         model_name: str = 'qwen-turbo-latest', 
                         reference_dir: str = "normalign_stereotype/concepts/stereotype_concepts",
+                        working_config: Dict[str, Dict[str, Dict]] = {},
                         input_concepts: Optional[Union[str, List[str]]] = 'statements', 
                         output_concept: str = 'answers') -> Plan:
     """Create a plan from a DOT file with specified input and output concepts.
@@ -111,6 +112,7 @@ def create_plan_from_dot(dot_file_path: str,
         dot_file_path: Path to the DOT file
         model_name: Name of the model to use
         reference_dir: Directory containing reference files
+        configuration: Dictionary of customized configuration for each concept
         input_concepts: List of input concept names or single input concept name. 
                        If None, uses base concepts
         output_concept: Name of the output concept
@@ -206,7 +208,9 @@ def create_plan_from_dot(dot_file_path: str,
             perception_concept_names=perception_concepts,
             actuation_concept_name=actuation_concept,
             inferred_concept_name=concept,
-            view=view
+            view=view,
+            actuation_working_config=working_config.get(concept, {}).get("actuation", None),
+            perception_working_config=working_config.get(concept, {}).get("perception", None)
         )
     
     
@@ -233,10 +237,12 @@ if __name__ == "__main__":
         dot_file = "process_dot/stereotype_graphvis_draft.dot"
         input_concepts = {"statements": "you are funny"} # Specify your input concepts
         output_concept = "answers"  # Specify your output concept
-        
+        working_config = {}
+
         plan = create_plan_from_dot(
             dot_file,
             reference_dir="normalign_stereotype/concepts/stereotype_concepts",
+            working_config=working_config,
             input_concepts=input_concepts.keys(),
             output_concept=output_concept
         )
