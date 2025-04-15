@@ -6,58 +6,94 @@ from normalign_stereotype.core._reference import element_action
 from normalign_stereotype.core._concept import Concept
 import re
 
+
+concept_comprehension_prompt = """
+
+Given the context: "{concept_context}"
+Explain what "{concept_name}" means, while keeping its meaning independent. Give a one-to-several sentences for definition, and make sure it is independent of the context.
+
+"""
+
+
+classification_prompt = """
+
+Your task is to find instances of "{meta_name}".
+    
+Context: "{meta_value}"
+
+Find from: "{input_value}"
+
+Your output should be some context and explanations following a summary name for each of the instance,
+
+
+"""
+
+
+judgement_prompt = """
+
+Your task is to judge if the truth condition of "{meta_name}" given the variables are "{meta_name_variables}" being "{input_names}".
+
+That is to say, your task is to judge if "{meta_name_substituted}" is true.
+
+Context: 
+- "{meta_names}": "{meta_value}"
+{input_names_input_value_pairs}
+
+Your output should be some justifications following your judge i.e. "True", "False", or "Not Sure".
+
+"""
+
+
 def get_default_working_config(concept_name):
     """Get default cognition configuration based on concept name."""
     perception_config = {
         "mode": "memory_retrieval"
     }
 
-    if "classification" in concept_name:
-        actuation_config = {
-            "mode": "classification",
-            "actuated_llm": "structured_llm",
-            "prompt_template_path": "basic_template/classification-d",
-            "place_holders": {
+    place_holders = {
                 "meta_input_name_holder": "{meta_input_name}",
                 "meta_input_value_holder": "{meta_input_value}",
                 "input_key_holder": "{input_name}",
                 "input_value_holder": "{input_value}",
-            },
+            }
+
+    if "?" in concept_name:
+        actuation_config = {
+            "mode": "llm_prompt_two_replacement",
+            "actuated_llm": "structured_llm",
+            "prompt_template": classification_prompt,
+            "place_holders": place_holders
+        }
+    elif "<" and ">" in concept_name:
+        actuation_config = {
+            "mode": "llm_prompt_two_replacement",
+            "actuated_llm": "structured_llm",
+            "prompt_template": judgement_prompt,
+            "place_holders": place_holders
         }
     else:
-        pos = _get_phrase_pos(concept_name)
-        input_key_holder = "{input_name}"
-        if pos == "noun":
-            input_key_holder = "{verb/proposition}"
-        elif pos == "verb":
-            input_key_holder = "{noun/object/event}"
-
         actuation_config = {
-            "mode": "pos",
-            "actuated_llm": "bullet_llm",
-            "meta_llm": "llm",
-            "prompt_template_path": f"normalign_stereotype/templates/pos_template/{pos}",
-            "place_holders": {
-                "meta_input_name_holder": "{meta_input_name}",
-                "meta_input_value_holder": "{meta_input_value}",
-                "input_key_holder": input_key_holder,
-                "input_value_holder": "{input_value}",
-            },
+            "mode": "llm_prompt_two_replacement",
+            "actuated_llm": "structured_llm",
+            "prompt_template": concept_comprehension_prompt,
+            "place_holders": place_holders
         }
-    
+
     return perception_config, actuation_config
 
 
-def customize_actuation_working_config(concept_name, prompt_template_dir, mode="llm_prompt_two_replacement", **kwargs):
-
-    prompt_template_path = os.path.join(prompt_template_dir, concept_name)
-
-    if not os.path.exists(prompt_template_path):
-        raise FileNotFoundError(f"Prompt template not found: {prompt_template_path}")
+def customize_actuation_working_config(concept_name, prompt_template_dir=None, mode="llm_prompt_two_replacement", prompt_template=None, **kwargs):
+    """Customize actuation working configuration.
     
+    Args:
+        concept_name: Name of the concept
+        prompt_template_dir: Optional directory containing prompt templates
+        mode: Mode of operation
+        prompt_template: Optional direct prompt template string
+        **kwargs: Additional configuration parameters
+    """
     actuation_working_config = {
         "mode": mode,
-        "prompt_template_path": prompt_template_path,
         "place_holders": {
             "meta_input_name_holder": "{meta_input_name}",
             "meta_input_value_holder": "{meta_input_value}",
@@ -66,9 +102,18 @@ def customize_actuation_working_config(concept_name, prompt_template_dir, mode="
         }
     }
 
+    if prompt_template:
+        actuation_working_config["prompt_template"] = prompt_template
+    elif prompt_template_dir:
+        prompt_template_path = os.path.join(prompt_template_dir, concept_name)
+        if not os.path.exists(prompt_template_path):
+            raise FileNotFoundError(f"Prompt template not found: {prompt_template_path}")
+        actuation_working_config["prompt_template_path"] = prompt_template_path
+    else:
+        raise ValueError("Either prompt_template or prompt_template_dir must be provided")
+
     if mode == "llm_prompt_two_replacement":
         actuation_working_config["actuated_llm"] = "structured_llm"
-        
     elif mode == "llm_prompt_generation_replacement":
         actuation_working_config["meta_llm"] = "llm"
         actuation_working_config["actuated_llm"] = "bullet_llm"
@@ -247,24 +292,28 @@ class Agent:
             raise ValueError("Actuation requires Concept instance")
 
         reference = concept.reference
-        concept_name = concept.comprehension.get("name")
+        concept_name = concept.comprehension.get("name","")
+        concpet_context = concept.comprehension.get("context","")
 
         actuation_configuration = self.working_memory['actuation']
         concept_configuration = actuation_configuration.get(concept_name)
 
         _key_memory_concept = lambda x:self._key_memory(x, concept_name)
         mode = concept_configuration.get("mode")
+     
 
         if mode == "classification":
             actuated_llm = self.body.get(concept_configuration.get('actuated_llm'))
-            prompt_template_path = concept_configuration.get('prompt_template_path')
-            classification_template = open(prompt_template_path, encoding="utf-8").read()
+            prompt_template = concept_configuration.get('prompt_template')
+            if not prompt_template:
+                prompt_template_path = concept_configuration.get('prompt_template_path')
+                prompt_template = open(prompt_template_path, encoding="utf-8").read()
             place_holders = concept_configuration.get('place_holders')
 
             _classification_actuation = lambda name: (
                 self._actuation_llm_prompt_two_replacement(
                 name,
-                classification_template,
+                prompt_template,
                 place_holders,
                 _key_memory_concept,
                 actuated_llm,
@@ -275,14 +324,16 @@ class Agent:
         if mode == "pos":
             actuated_llm = self.body.get(concept_configuration.get('actuated_llm'))
             meta_llm = self.body.get(concept_configuration.get('meta_llm'))
-            prompt_template_path = concept_configuration.get('prompt_template_path')
-            pos_meta_template = open(prompt_template_path, encoding="utf-8").read()
+            prompt_template = concept_configuration.get('prompt_template')
+            if not prompt_template:
+                prompt_template_path = concept_configuration.get('prompt_template_path')
+                prompt_template = open(prompt_template_path, encoding="utf-8").read()
             place_holders = concept_configuration.get('place_holders')
 
             _pos_actuation = lambda name: (
                 self._actuation_llm_prompt_generation_replacement(
                 name,
-                pos_meta_template,
+                prompt_template,
                 place_holders,
                 _key_memory_concept,
                 meta_llm,
@@ -291,27 +342,31 @@ class Agent:
             return element_action(_pos_actuation, [reference])
         
         if mode == "llm_prompt_generation_replacement":
-                meta_prompt_llm = self.body.get(concept_configuration.get('meta_prompt_llm'))
-                actuated_llm = self.body.get(concept_configuration.get('actuated_llm'))
+            meta_prompt_llm = self.body.get(concept_configuration.get('meta_prompt_llm'))
+            actuated_llm = self.body.get(concept_configuration.get('actuated_llm'))
+            prompt_template = concept_configuration.get('prompt_template')
+            if not prompt_template:
                 prompt_template_path = concept_configuration.get('prompt_template_path')
-                meta_prompt_template = open(prompt_template_path, encoding="utf-8").read()
-                place_holders = concept_configuration.get('place_holders')
+                prompt_template = open(prompt_template_path, encoding="utf-8").read()
+            place_holders = concept_configuration.get('place_holders')
 
-                _llm_prompt_generation_replacement_actuation = lambda name: (
-                    self._actuation_llm_prompt_generation_replacement(
-                        name,
-                        meta_prompt_template,
-                        place_holders,
-                        _key_memory_concept,
-                        meta_prompt_llm,
-                        actuated_llm,
-                    ))
-                return element_action(_llm_prompt_generation_replacement_actuation, [reference])
+            _llm_prompt_generation_replacement_actuation = lambda name: (
+                self._actuation_llm_prompt_generation_replacement(
+                    name,
+                    prompt_template,
+                    place_holders,
+                    _key_memory_concept,
+                    meta_prompt_llm,
+                    actuated_llm,
+                ))
+            return element_action(_llm_prompt_generation_replacement_actuation, [reference])
 
         if mode == "llm_prompt_two_replacement":
             actuated_llm = self.body.get(concept_configuration.get('actuated_llm'))
-            prompt_template_path = concept_configuration.get('prompt_template_path')
-            prompt_template = open(prompt_template_path, encoding="utf-8").read()
+            prompt_template = concept_configuration.get('prompt_template')
+            if not prompt_template:
+                prompt_template_path = concept_configuration.get('prompt_template_path')
+                prompt_template = open(prompt_template_path, encoding="utf-8").read()
             place_holders = concept_configuration.get('place_holders')
 
             _classification_actuation = lambda name: (
