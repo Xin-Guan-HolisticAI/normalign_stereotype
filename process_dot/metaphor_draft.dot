@@ -19,40 +19,17 @@ digraph inferenceModelMetaphor{
     "abstract_complex_theme?" -> "abstract_complex_theme"[label="actu"]
     "abstract_complex_theme"  [xlabel = "{'abstract_complex_theme','figurative_language_element', 'extract'}"]
 
+    "<%1_maps_%2_onto_%3_directly>"[xlabel="{'<%1_maps_%2_onto_%3_directly>'}"]
 
-    "if" [xlabel = "{'if'}"]
-    "that_$1_maps_$2_onto_$3_directly_if?"[xlabel = "{'that_$1_maps_$2_onto_$3_directly_if?'}"]
-    "that_$1_maps_$2_onto_$3_directly?"[xlabel = "{'that_$1_maps_$2_onto_$3_directly?'}"]
-    
-    "that_$1_present" [xlabel = "{'that_$1_present'}"]
-    "that_$1_transfers_symbolic_meaning_to_$2_without_intermediaries"[xlabel = "{'that_$1_maps_$2_onto_$3_directly_if'}"]
-
-    "that_$1_present" -> "if_that_$1_present" [label="perc"]
-    "if" -> "if_that_$1_present"[label="actu"]
-    "if_that_$1_present" [xlabel = "{'if'}"]
-
-    "that_$1_transfers_symbolic_meaning_to_$2_without_intermediaries" -> "if_that_$1_transfers_symbolic_meaning_to_$2_without_intermediaries" [label="perc"]
-    "if" -> "if_that_$1_transfers_symbolic_meaning_to_$2_without_intermediaries" [label="actu"]
-    "if_that_$1_transfers_symbolic_meaning_to_$2_without_intermediaries"[xlabel = "{'if'}"]
-
-    "if_that_$1_present" -> "that_$1_maps_$2_onto_$3_directly_if" [label="perc"]
-    "if_that_$1_transfers_symbolic_meaning_to_$2_without_intermediaries" -> "that_$1_maps_$2_onto_$3_directly_if" [label="perc"]
-    "that_$1_maps_$2_onto_$3_directly_if?" -> "that_$1_maps_$2_onto_$3_directly_if" [label="actu"]
-    "that_$1_maps_$2_onto_$3_directly_if" [xlabel = "{'that_$1_maps_$2_onto_$3_directly_if'}"]
+    "figurative_language_element" -> "<figurative_language_element_maps_specific_tangible_entity_onto_abstract_complex_theme_directly>"[label="perc"]
+    "specific_tangible_entity" -> "<figurative_language_element_maps_specific_tangible_entity_onto_abstract_complex_theme_directly>"[label="perc"]
+    "abstract_complex_theme" -> "<figurative_language_element_maps_specific_tangible_entity_onto_abstract_complex_theme_directly>"[label="perc"]
+    "<%1_maps_%2_onto_%3_directly>" -> "<figurative_language_element_maps_specific_tangible_entity_onto_abstract_complex_theme_directly>"[label="actu"]
+    "<figurative_language_element_maps_specific_tangible_entity_onto_abstract_complex_theme_directly>" [xlabel = "{'specific_tangible_entity','abstract_complex_theme','figurative_language_element', 'extract'}"]
 
 
-    "figurative_language_element" -> "that_figurative_language_element_maps_specific_tangible_entity_onto_abstract_complex_theme_directly_if"[label="perc"]
-    "specific_tangible_entity" -> "that_figurative_language_element_maps_specific_tangible_entity_onto_abstract_complex_theme_directly_if"[label="perc"]
-    "abstract_complex_theme" -> "that_figurative_language_element_maps_specific_tangible_entity_onto_abstract_complex_theme_directly_if"[label="perc"]
-    "that_$1_maps_$2_onto_$3_directly_if" -> "that_figurative_language_element_maps_specific_tangible_entity_onto_abstract_complex_theme_directly_if"[label="actu"]
-    "that_figurative_language_element_maps_specific_tangible_entity_onto_abstract_complex_theme_directly_if" [xlabel = "{'specific_tangible_entity','abstract_complex_theme','figurative_language_element', 'extract'}"]
-
-    "that_figurative_language_element_maps_specific_tangible_entity_onto_abstract_complex_theme_directly_if" -> "that_figurative_language_element_maps_specific_tangible_entity_onto_abstract_complex_theme_directly" [label="perc"]
-    "that_$1_maps_$2_onto_$3_directly?" -> "that_figurative_language_element_maps_specific_tangible_entity_onto_abstract_complex_theme_directly" [label="perc"]
-    "that_figurative_language_element_maps_specific_tangible_entity_onto_abstract_complex_theme_directly" [xlabel = "{'specific_tangible_entity','abstract_complex_theme','figurative_language_element', 'extract'}"]
-
-    "that_figurative_language_element_maps_specific_tangible_entity_onto_abstract_complex_theme_directly" -> "figurative_language_element_that_maps_specific_tangible_entity_onto_abstract_complex_theme_directly"[label="perc"]
-    "figurative_language_element" -> "figurative_language_element_that_maps_specific_tangible_entity_onto_abstract_complex_theme_directly"[label="perc"]
-    "figurative_language_element_that_maps_specific_tangible_entity_onto_abstract_complex_theme_directly" [xlabel = "{'figurative_language_element', 'extract'}"]
+    "<figurative_language_element_maps_specific_tangible_entity_onto_abstract_complex_theme_directly>" -> "figurative_language_element_<maps_specific_tangible_entity_onto_abstract_complex_theme_directly>"[label="perc"]
+    "figurative_language_element" -> "figurative_language_element_<maps_specific_tangible_entity_onto_abstract_complex_theme_directly>"[label="perc"]
+    "figurative_language_element_<maps_specific_tangible_entity_onto_abstract_complex_theme_directly>" [xlabel = "{'figurative_language_element', 'extract'}"]
 
 }

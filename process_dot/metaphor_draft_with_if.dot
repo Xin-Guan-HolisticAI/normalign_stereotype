@@ -1,0 +1,77 @@
+### "From an extract, the figurative language element that directly maps a specific, tangible entity onto an abstract, complex theme if all three components (figurative language element,  specific tangible entity, abstract complex theme) are present and the tangible entity transfers symbolic meaning to the abstract theme without intermediaries."
+digraph inferenceModelMetaphor{
+
+    "extract"  [xlabel="{'extract'}"]
+
+    "figurative_language_element?"[xlabel="{'figurative_language_element?'}"]
+
+    "extract" -> "figurative_language_element"[label="perc"]
+    "figurative_language_element?" -> "figurative_language_element"[label="actu"]
+    "figurative_language_element"  [xlabel = "{'figurative_language_element', 'extract'}"]
+
+    "specific_tangible_entity?"[xlabel="{'specific_tangible_entity?'}"]
+    "abstract_complex_theme?"[xlabel="{'abstract_complex_theme?'}"]
+
+    "figurative_language_element" -> "specific_tangible_entity"[label="perc"]
+    "specific_tangible_entity?" -> "specific_tangible_entity"[label="actu"]
+    "specific_tangible_entity"  [xlabel = "{'specific_tangible_entity','figurative_language_element', 'extract'}"]
+
+    "figurative_language_element" -> "abstract_complex_theme"[label="perc"]
+    "abstract_complex_theme?" -> "abstract_complex_theme"[label="actu"]
+    "abstract_complex_theme"  [xlabel = "{'abstract_complex_theme','figurative_language_element', 'extract'}"]
+
+    "@<%1_maps_%2_onto_%3_directly>^1"[xlabel = "{'@<%1_maps_%2_onto_%3_directly>^1'}"]
+
+    "<@%1_present>^3" [xlabel = "{'<@%1_present>'}"]
+    "<@%1_transfers_symbolic_meaning_to_@%3_without_intermediaries>^2"[xlabel = "{'<@%1_transfers_symbolic_meaning_to_@%3_without_intermediaries>'}"]
+
+
+    "intermediaries?" [xlabel = "{'intermediaries?'}"]
+    "symbolic_meaning?"[xlabel = "{'symbolic_meaning?'}"]
+    "@%1^2"  [xlabel = "{'@%1^2'}"]
+    "@%3^2" [xlabel = "{'@%3^2'}"]
+
+    "@%1^2" -> "symbolic_meaning"[label="perc"]
+    "symbolic_meaning?"->"symbolic_meaning"[label="actu"]
+    "symbolic_meaning"[xlabel = "{'symbolic_meaning','@%1^2'}"]
+    
+    "@%3^2" -> "intermediaries"[label="perc"]
+    "@%1^2" -> "intermediaries"[label="perc"]
+    "intermediaries?" -> "intermediaries"[label="actu"]
+    "intermediaries"[xlabel = "{'intermediaries','@%3^2','@%1^2'}"]
+    
+    "<%1_transfers_%2_to_%3_without_%4>^2" [xlabel = "{'<%1_transfers_%2_to_%3_without_%4>^2'}"]    
+
+
+    "@%3^2" -> "<@%1_transfers_symbolic_meaning_to_@%3_without_intermediaries>^2"[label="perc"]
+    "@%1^2" -> "<@%1_transfers_symbolic_meaning_to_@%3_without_intermediaries>^2"[label="perc"]
+    "symbolic_meaning"->"<@%1_transfers_symbolic_meaning_to_@%3_without_intermediaries>^2"[label="perc"]
+    "intermediaries"->"<@%1_transfers_symbolic_meaning_to_@%3_without_intermediaries>^2"[label="perc"]
+    "<%1_transfers_%2_to_%3_without_%4>^2" -> "<@%1_transfers_symbolic_meaning_to_@%3_without_intermediaries>^2"[label="actu"]
+    "<@%1_transfers_symbolic_meaning_to_@%3_without_intermediaries>^2"[xlabel = "{'@%1^2','@%3^2'}"]
+
+    "@%1^3" [xlabel = "{'@%1^3'}"]
+    "<%1_present>^3" [xlabel = "{<%1_present>^3'}"]
+
+    "@%1^3" -> "<@%1_present>^3"[label="perc"]
+    "<%1_present>^3" -> "<@%1_present>^3"[label="actu"]
+    "<@%1_present>^3"[xlabel = "{'@%1^3'}"]
+
+    "<@%1_present>^3" -> "<%1_maps_%2_onto_%3_directly>^1" [label="perc"]
+    "<@%1_transfers_symbolic_meaning_to_@%3_without_intermediaries>^2" -> "<%1_maps_%2_onto_%3_directly>^1" [label="perc"]
+    "@<%1_maps_%2_onto_%3_directly>^1" -> "<%1_maps_%2_onto_%3_directly>^1" [label="actu"]
+    "<%1_maps_%2_onto_%3_directly>^1" [xlabel = "{'<%1_maps_%2_onto_%3_directly>'}"]
+
+
+    "figurative_language_element" -> "<figurative_language_element_maps_specific_tangible_entity_onto_abstract_complex_theme_directly>^1"[label="perc"]
+    "specific_tangible_entity" -> "<figurative_language_element_maps_specific_tangible_entity_onto_abstract_complex_theme_directly>^1"[label="perc"]
+    "abstract_complex_theme" -> "<figurative_language_element_maps_specific_tangible_entity_onto_abstract_complex_theme_directly>^1"[label="perc"]
+    "<%1_maps_%2_onto_%3_directly>^1" -> "<figurative_language_element_maps_specific_tangible_entity_onto_abstract_complex_theme_directly>^1"[label="actu"]
+    "<figurative_language_element_maps_specific_tangible_entity_onto_abstract_complex_theme_directly>^1" [xlabel = "{'specific_tangible_entity','abstract_complex_theme','figurative_language_element', 'extract'}"]
+
+
+    "<figurative_language_element_maps_specific_tangible_entity_onto_abstract_complex_theme_directly>^1" -> "figurative_language_element_<maps_specific_tangible_entity_onto_abstract_complex_theme_directly>^1"[label="perc"]
+    "figurative_language_element" -> "figurative_language_element_<maps_specific_tangible_entity_onto_abstract_complex_theme_directly>^1"[label="perc"]
+    "figurative_language_element_<maps_specific_tangible_entity_onto_abstract_complex_theme_directly>^1" [xlabel = "{'figurative_language_element', 'extract'}"]
+
+}

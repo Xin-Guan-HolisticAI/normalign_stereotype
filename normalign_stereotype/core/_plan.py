@@ -26,8 +26,8 @@ class Plan:
         self.output_concept_name = output_name
         return self
 
-    def add_concept(self, concept_name):
-        concept = Concept(concept_name)
+    def add_concept(self, concept_name, context =""):
+        concept = Concept(concept_name, context)
         self.concept_registry[concept_name] = concept
         return concept
 

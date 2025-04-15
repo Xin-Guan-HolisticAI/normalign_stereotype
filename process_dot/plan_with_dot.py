@@ -27,18 +27,36 @@ class DOTParser:
         self.concept_names: Set[str] = set()
         self.classification_concept_names: Set[str] = set()
         self.base_concept_names: Set[str] = set()
+        self.context: str = ""
         
     def parse(self) -> None:
         """Parse the DOT file and extract nodes, edges, and concepts."""
         try:
             with open(self.dot_file_path, 'r') as f:
                 content = f.read()
+                print("\n=== Raw content ===")
+                print(content)
+                
+                # Extract context if present
+                context_match = re.match(r'^###(.*?)(?=digraph|$)', content, re.DOTALL)
+                if context_match:
+                    self.context = context_match.group(1).strip()
+                    print("\n=== Found context ===")
+                    print(self.context)
+                    # Remove context from content for further processing
+                    content = content[context_match.end():].strip()
         except IOError as e:
             raise IOError(f"Failed to read DOT file: {e}")
             
         # Extract nodes and their labels
-        node_pattern = r'(\w+)\s*\[xlabel="([^"]+)"\];'
+        node_pattern = r'\s*"([^"]+)"\s*\[xlabel\s*=\s*"([^"]+)"\](?:\s*;)?'
         nodes = re.findall(node_pattern, content)
+        print("\n=== Found nodes ===")
+        for node, label in nodes:
+            print(f"Node: {node}")
+            print(f"Label: {label}")
+            print("---")
+        
         for node, label in nodes:
             try:
                 # Remove any whitespace and convert string representation to actual list
@@ -52,6 +70,8 @@ class DOTParser:
                     # Handle other formats if needed
                     label = ast.literal_eval(label)
                 self.node_labels[node] = label
+                print(f"\nProcessed node {node}")
+                print(f"Final label: {label}")
             except (SyntaxError, ValueError) as e:
                 print(f"Warning: Could not parse label for node {node}: {label}")
                 self.node_labels[node] = []
@@ -61,14 +81,29 @@ class DOTParser:
             else:
                 self.concept_names.add(node)
                 
+        # print("\n=== Concept Classification ===")
+        # print("Regular concepts:", self.concept_names)
+        # print("\nClassification concepts:", self.classification_concept_names)
+        
         # Extract edges
-        edge_pattern = r'(\w+)\s*->\s*(\w+)\s*\[label="(\w+)"\]'
+        edge_pattern = r'"([^"]+)"\s*->\s*"([^"]+)"\s*\[label="(\w+)"\]'
         self.edges = re.findall(edge_pattern, content)
+        # print("\n=== Found edges ===")
+        for src, dst, label in self.edges:
+            print(f"{src} --({label})--> {dst}")
         
         # Identify base concepts (those without perception dependencies)
+        # print("\n=== Base Concept Analysis ===")
         for concept in self.concept_names:
-            if not self._get_concept_dependencies(concept):
+            deps = self._get_concept_dependencies(concept)
+            # print(f"\nConcept: {concept}")
+            # print(f"Dependencies: {deps}")
+            if not deps:
                 self.base_concept_names.add(concept)
+                # print("Added to base concepts!")
+        
+        # print("\n=== Final Results ===")
+        # print("Base concepts:", self.base_concept_names)
         
     def _get_concept_dependencies(self, concept: str) -> Set[str]:
         """Get all concepts that a given concept depends on.
@@ -136,6 +171,59 @@ class DOTParser:
                 related['outgoing_actuation'].add(dst)
                 
         return related
+    
+    def get_actuation_context(self, edge: tuple[str, str, str]) -> Dict[str, Dict[str, Union[str, Set[str]]]]:
+        """Get the context required for actuation.
+        
+        This method can be called in one way:
+        1. With an actuation edge (src, dst, 'actu') to get context for that specific edge
+        
+        Args:
+            edge: A tuple (source, destination, 'actu') representing an actuation edge
+            
+        Returns:
+            Dictionary containing:
+            - 'target_concept': The concept being actuated
+            as_target:
+            - 'required_actuation': The source concept of the actuation (input)
+            - 'required_perception': Set of concepts that must be perceived by the target
+            as_source:
+            - 'actuation_source_for': The concepts that this target concept actuates
+            - 'perception_source_for': The concepts that perceiving the target concept
+            
+        Raises:
+            ValueError: If the edge is not a valid actuation edge or concepts are not found
+        """
+        src, dst, label = edge
+        
+        if label != 'actu':
+            raise ValueError(f"Edge {edge} is not an actuation edge")
+            
+        if dst not in self.concept_names and dst not in self.classification_concept_names:
+            raise ValueError(f"Target concept '{dst}' not found in DOT file")
+            
+        context = {
+            'target_concept': dst,
+            'as_target': {
+                'required_actuation': src,
+                'required_perception': self._get_concept_dependencies(dst)
+            },
+            'as_source': {
+                'actuation_source_for': set(),
+                'perception_source_for': set()
+            }
+        }
+        
+        # Get concepts that this target concept actuates
+        for edge_src, edge_dst, edge_label in self.edges:
+            if edge_src == dst and edge_label == 'actu':
+                context['as_source']['actuation_source_for'].add(edge_dst)    
+        # Get concepts that perceive this target concept
+            if edge_src == dst and edge_label == 'perc':
+                context['as_source']['perception_source_for'].add(edge_dst)
+                
+        return context
+
 
 
 def create_plan_from_dot(dot_file_path: str, 
@@ -202,11 +290,11 @@ def create_plan_from_dot(dot_file_path: str,
     
     # Add all concepts
     for concept in parser.concept_names:
-        plan.add_concept(concept)
+        plan.add_concept(concept, context=parser.context)
     
     # Add all classification concepts
     for classification in parser.classification_concept_names:
-        plan.add_concept(classification)
+        plan.add_concept(classification, context=parser.context)
     
     # Configure I/O
     if input_concepts is None:
@@ -289,83 +377,125 @@ def create_plan_from_dot(dot_file_path: str,
 
 if __name__ == "__main__":
 
+    concept_comprehension_prompt = """
+    
+    Given the context: "{concept_context}"
+    Explain what "{concept_name}" means, while keeping its meaning independent. Give a one-to-several sentences for definition, and make sure it is independent of the context.
 
-    def customize_reference_file(reference_dir):
-        pass
-
-    # def customize_working_config_with_actuation_prompt_template(concept_name, concept_location, prompt_template_dir):
-    #     # prompt template
-    #     prompt_template_path = os.path.join(prompt_template_dir, f"{concept_name}.txt")
-
-    #     # read prompt template
-    #     with open(prompt_template_path, "w") as f:
-    #         prompt_template = f.read()
-
-    #     # build actuation prompt template
-    #     actuation_prompt_template = prompt_template.split("---")[0]
-
-    #     # build perception prompt template
-    #     perception_prompt_template = prompt_template.split("---")[1]
+    """
 
 
-    #     # build the actuation prompt template 
+    classification_prompt = """
+
+    Your task is to find instances of "{meta_name}".
+     
+    Context: "{meta_value}"
+   
+    Find from: "{input_value}"
+
+    Your output should be some context and explanations following a summary name for each of the instance,
+
+
+    """
+
+
+    judgement_prompt = """
+
+    Your task is to judge if the truth condition of "{meta_name}" given the variables are "{meta_name_variables}" being "{input_names}".
+
+    That is to say, your task is to judge if "{meta_name_substituted}" is true.
+    
+    Context: 
+    - "{meta_names}": "{meta_value}"
+    {input_names_input_value_pairs}
+
+    Your output should be some justifications following your judge i.e. "True", "False", or "Not Sure".
+
+    """
 
 
 
+
+
+    # def customize_reference_file(reference_dir, mode = "llm_with_default_template"):
     #     pass
 
+    # # def customize_working_config_with_actuation_prompt_template(concept_name, concept_location, prompt_template_dir):
+    # #     # prompt template
+    # #     prompt_template_path = os.path.join(prompt_template_dir, f"{concept_name}.txt")
+
+
+    # #     # read prompt template
+    # #     with open(prompt_template_path, "w") as f:
+    # #         prompt_template = f.read()
+
+    # #     # build actuation prompt template
+    # #     actuation_prompt_template = prompt_template.split("---")[0]
+
+    # #     # build perception prompt template
+    # #     perception_prompt_template = prompt_template.split("---")[1]
+
+
+    # #     # build the actuation prompt template 
+
+
+
+    # #     pass
+
     
-    # try:
-    #     # Example usage with custom input and output concepts
-    #     dot_file = "process_dot/stereotype_graphvis_draft.dot"
-    #     input_concepts = {"statements": "you are funny"} # Specify your input concepts
-    #     input_config = {
-    #         "statements": customize_actuation_working_config(
-    #             "statements",
-    #             "process_dot/concepts/stereotype_concepts",
-    #             mode="llm_prompt_two_replacement",
-    #         )
-    #     }
-    #     output_concept = "answers"
+    try:
+        # Example usage with custom input and output concepts
+        dot_file = "process_dot/metaphor_draft.dot"
+        input_concepts = {"extract": "you are funny"} # Specify your input concepts
+        # input_config = {
+        #     "statements": customize_actuation_working_config(
+        #         "statements",
+        #         "process_dot/concepts/stereotype_concepts",
+        #         mode="llm_prompt_two_replacement",
+        #     )
+        # }
+        output_concept = "figurative_language_element_that_maps_specific_tangible_entity_onto_abstract_complex_theme_directly"
         
-    #     parser = DOTParser(dot_file)
-    #     parser.parse()
+        parser = DOTParser(dot_file)
+        parser.parse()
 
-    #     for concept_name in parser.base_concept_names + parser.classification_concept_names:
-    #         if concept_name in input_concepts.keys():
-    #             continue
+        # print(parser.base_concept_names)
 
-    #         customize_reference_file(
-    #             reference_dir = "process_dot/concepts/stereotype_concepts"
-    #         )
+        # for concept_name in parser.base_concept_names + parser.classification_concept_names:
+        #     if concept_name in input_concepts.keys():
+        #         continue
 
-    #     # customize working config
-    #     for concept_name in parser.concept_names:
-    #         working_config = customize_working_config_with_actuation_prompt_template(
-    #             prompt_template_dir = "process_dot/concepts/stereotype_concepts"
-    #         )
+        #     customize_reference_file(
+        #         reference_dir = "process_dot/concepts/stereotype_concepts"
+        #     )
+
+        # # customize working config
+        # for concept_name in parser.concept_names:
+        #     working_config = customize_working_config_with_actuation_prompt_template(
+        #         prompt_template_dir = "process_dot/concepts/stereotype_concepts"
+        #     )
 
 
-    #     plan = create_plan_from_dot(
-    #         dot_file,
-    #         reference_dir="process_dot/concepts/stereotype_concepts",
-    #         working_config=working_config,
-    #         input_concepts=input_concepts.keys(),
-    #         output_concept=output_concept
-    #     )
+        # plan = create_plan_from_dot(
+        #     dot_file,
+        #     reference_dir="process_dot/concepts/stereotype_concepts",
+        #     # working_config=working_config,
+        #     input_concepts=input_concepts.keys(),
+        #     output_concept=output_concept
+        # )
 
-    #     # for input concepts, make references
-    #     input_references = {}
-    #     for concept, value in input_concepts.items():
-    #         input_references[concept] = create_concept_reference(concept, value)
+        # # for input concepts, make references
+        # input_references = {}
+        # for concept, value in input_concepts.items():
+        #     input_references[concept] = create_concept_reference(concept, value)
         
-    #     answer_ref = plan.execute(input_references, input_config)
+        # answer_ref = plan.execute(input_references, input_config)
     #     print("\nFinal Inference Results:")
     #     print("Reference Tensor:", answer_ref.tensor)
     #     print("Tensor Axes:", answer_ref.axes)
         
-    # except FileNotFoundError as e:
-    #     print(f"Error: File not found - {e}")
+    except FileNotFoundError as e:
+        print(f"Error: File not found - {e}")
     # except ValueError as e:
     #     print(f"Error: Invalid configuration - {e}")
     # except IOError as e:
