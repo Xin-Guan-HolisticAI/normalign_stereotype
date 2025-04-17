@@ -26,8 +26,8 @@ class Plan:
         self.output_concept_name = output_name
         return self
 
-    def add_concept(self, concept_name, context =""):
-        concept = Concept(concept_name, context)
+    def add_concept(self, concept_name, context="", type="{}"):
+        concept = Concept(concept_name, context, type)
         self.concept_registry[concept_name] = concept
         return concept
 
@@ -39,7 +39,7 @@ class Plan:
             concept.reference = reference
         
         # Get default config
-        perception_config, actuation_config = get_default_working_config(concept_name)
+        perception_config, actuation_config = get_default_working_config(concept.comprehension["type"])
         
         # Apply custom actuation if provided
         if actuation_working_config:

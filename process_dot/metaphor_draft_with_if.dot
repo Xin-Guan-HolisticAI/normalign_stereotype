@@ -1,4 +1,3 @@
-### "From an extract, the figurative language element that directly maps a specific, tangible entity onto an abstract, complex theme if all three components (figurative language element,  specific tangible entity, abstract complex theme) are present and the tangible entity transfers symbolic meaning to the abstract theme without intermediaries."
 digraph inferenceModelMetaphor{
 
     "extract"  [xlabel="{'extract'}"]
@@ -20,7 +19,7 @@ digraph inferenceModelMetaphor{
     "abstract_complex_theme?" -> "abstract_complex_theme"[label="actu"]
     "abstract_complex_theme"  [xlabel = "{'abstract_complex_theme','figurative_language_element', 'extract'}"]
 
-    "@<%1_maps_%2_onto_%3_directly>^1"[xlabel = "{'@<%1_maps_%2_onto_%3_directly>^1'}"]
+    "if_@_<%1_maps_%2_onto_%3_directly>^1"[xlabel = "{'if_@_<%1_maps_%2_onto_%3_directly>^1'}"]
 
     "<@%1_present>^3" [xlabel = "{'<@%1_present>'}"]
     "<@%1_transfers_symbolic_meaning_to_@%3_without_intermediaries>^2"[xlabel = "{'<@%1_transfers_symbolic_meaning_to_@%3_without_intermediaries>'}"]
@@ -59,7 +58,7 @@ digraph inferenceModelMetaphor{
 
     "<@%1_present>^3" -> "<%1_maps_%2_onto_%3_directly>^1" [label="perc"]
     "<@%1_transfers_symbolic_meaning_to_@%3_without_intermediaries>^2" -> "<%1_maps_%2_onto_%3_directly>^1" [label="perc"]
-    "@<%1_maps_%2_onto_%3_directly>^1" -> "<%1_maps_%2_onto_%3_directly>^1" [label="actu"]
+    "if_@_<%1_maps_%2_onto_%3_directly>^1" -> "<%1_maps_%2_onto_%3_directly>^1" [label="actu"]
     "<%1_maps_%2_onto_%3_directly>^1" [xlabel = "{'<%1_maps_%2_onto_%3_directly>'}"]
 
 
