@@ -3,10 +3,11 @@ import copy
 import re
 import ast
 import json
-from normalign_stereotype.core._modified_llm import ConfiguredLLM, StructuredLLM, BulletLLM
+from normalign_stereotype.core._modified_llm import ConfiguredLLM, StructuredLLM, BulletLLM, JsonStructuredLLM, JsonBulletLLM
 from normalign_stereotype.core._agent import Agent
 from normalign_stereotype.core._concept import Concept
 from normalign_stereotype.core._reference import Reference, element_action, cross_action, cross_product
+import logging
 
 def _safe_eval(s):
     """Safely evaluate a string representation of a list or other Python literal."""
@@ -91,7 +92,7 @@ When judging **quote** the specific part of the Truth conditions you mentioned t
                             
 Now, judge if "$actu_n_with_perc_n" is true or false based **strictly** on the above Truth conditions, and quote the specific part of the Truth conditions you mentioned to make the judgement in your output.
 
-Your output should start with some context, reasoning and explanations of the existence of the instance. Your summary key should be an "TRUE" or "FALSE" (or "N/A" if not applicable). Format: '.... : TRUE/FALSE/N/A'""")
+Your output should be a JSON object with Explanation and Summary_Key fields. The Explanation should contain your reasoning and the specific part of the Truth conditions you mentioned. The Summary_Key should be either "TRUE", "FALSE", or "N/A" (if not applicable).""")
 
         actuation_config = {
             "mode": "llm_prompt_two_replacement",
@@ -256,6 +257,45 @@ def _update_memory(name, value, concept_name, memory_location):
         json.dump(data, f)  # Write new data (overwrites from position 0)
         f.truncate()
 
+def _cognition_memory_json_bullet(json_bullet, concept_name, memory_location):
+    """Process JSON bullet points and update memory"""
+    try:
+        # # Clean up the JSON string by removing any escaped quotes and ensuring proper format
+        # cleaned_json = json_bullet.replace('\\"', '"').replace("'", '"')
+        
+        # Parse JSON bullet points
+        bullets = json.loads(json_bullet)
+        if not isinstance(bullets, list) or len(bullets) == 0:
+            raise ValueError("Invalid JSON format: must be a non-empty list")
+            
+        # Get the first bullet point
+        bullet = bullets[0]
+        if not isinstance(bullet, dict):
+            raise ValueError("Invalid bullet format: must be a dictionary")
+            
+        name = bullet.get("Summary_Key", "")
+        value = bullet.get("Explanation", "")
+        
+        if not name or not value:
+            raise ValueError("Missing required fields: Summary_Key or Explanation")
+
+        # Clean up the name by removing parentheses and extra spaces
+        name = re.sub(r'[()]', '', name).strip()
+        
+        # Update memory
+        _update_memory(name, value.strip(), concept_name, memory_location)
+        return name
+        
+    except json.JSONDecodeError as e:
+        logging.error(f"JSON parsing error: {str(e)}")
+        logging.error(f"JSON string: {json_bullet}")
+        return None
+    except Exception as e:
+        logging.error(f"Error processing JSON bullet: {str(e)}")
+        logging.error(f"JSON string: {json_bullet}")
+        return None
+
+
 def _combine_pre_perception_concepts(pre_perception_concepts, agent: Agent):
     #use cross-product to make the only perception concept for processing
     the_pre_perception_concept_name = (
@@ -316,8 +356,63 @@ if __name__ == "__main__":
                     self.body['memory_location']
                 )
                 return element_action(_cognition_memory_bullet_element, [raw_reference])
+            elif mode_of_remember == "memory_json_bullet":
+                _cognition_memory_json_bullet_element = lambda json_bullet: _cognition_memory_json_bullet(
+                    json_bullet,
+                    concept_name,
+                    self.body['memory_location']
+                )
+                return element_action(_cognition_memory_json_bullet_element, [raw_reference])
 
             raise ValueError(f"Unknown cognition mode: {mode_of_remember}")
+        
+        def perception(self, concept):
+            """Retrieve values through different perception modes"""
+
+            if not isinstance(concept, Concept):
+                raise ValueError("Perception requires Concept instance")
+
+            reference = concept.reference
+
+            concept_name_may_list_str = concept.comprehension.get("name")
+            concept_name_may_list = (
+                eval(concept_name_may_list_str)
+                if (concept_name_may_list_str.startswith("[")
+                    and concept_name_may_list_str.endswith("]"))
+                else concept_name_may_list_str
+            )
+
+            perception_configuration = self.working_memory['perception']
+            concept_configuration = perception_configuration.get(str(concept_name_may_list))
+            _key_memory_concept = lambda x:self._key_memory(x, concept_name_may_list)
+
+            mode = concept_configuration.get("mode")
+
+            if mode == 'memory_retrieval':
+                _memory_retrieval_perception = lambda name_may_list:(
+                    self._perception_memory_retrieval(
+                        _key_memory_concept(name_may_list)
+                    )
+                )
+
+                return element_action(_memory_retrieval_perception, [reference])
+            
+        def _perception_memory_retrieval(self, name_may_list):
+            """File-based value retrieval from JSONL storage"""
+            with open(self.body['memory_location'], 'r', encoding='utf-8') as f:
+                memory = eval(f.read())
+                if isinstance(name_may_list,list):
+                    name_list = name_may_list
+                    value_list = []
+                    for name in name_list:
+                        value = memory.get(name)
+                        value_list.append(value)
+                    return [name_list, value_list]
+                else:
+                    name = name_may_list
+                    value = memory.get(name)
+                    return [name, value]
+
 
         def actuation(self, concept, for_perception_concept_name = ''):
             """Create functions through named parameter resolution"""
@@ -359,8 +454,10 @@ if __name__ == "__main__":
     agent = AgentHere(
         body={
             "llm": ConfiguredLLM(model_name="qwen-turbo-latest"),
-            "bullet_llm": BulletLLM(model_name="qwen-turbo-latest"),
-            "structured_llm": StructuredLLM(model_name="qwen-turbo-latest"),
+            # "bullet_llm": BulletLLM(model_name="qwen-turbo-latest"),
+            "bullet_llm": JsonBulletLLM(model_name="qwen-turbo-latest"),
+            # "structured_llm": StructuredLLM(model_name="qwen-turbo-latest"),
+            "structured_llm": JsonStructuredLLM(model_name="qwen-turbo-latest"),
             "memory_location": "memory.json"
         }
     )
@@ -382,7 +479,7 @@ if __name__ == "__main__":
     figurative_reference = Reference(
         axes=["figurative_language_element"],
         shape=(1,),
-        initial_value=f"{figurative_language_element} : {figurative_language_element}"
+        initial_value="""[{"Explanation": "The pen trembled in the hand of the diplomat says something more about the diplomat nervousness and uncertainty, which makes the sentence more figurative.", "Summary_Key": "'that the pen trembled in the hand of the diplomat'"}]"""
     )
     figurative_concept.reference = figurative_reference
     raw_perception_concepts.append(figurative_concept)
@@ -396,7 +493,7 @@ if __name__ == "__main__":
     entity_reference = Reference(
         axes=["specific_entity"],
         shape=(1,),
-        initial_value=f"{specific_entity} : {specific_entity}"
+        initial_value='[{"Explanation": "The trembling pen shows the nervousness and uncertainty of diplomat, and it is a specific entity.", "Summary_Key": "Trembling Pen"}]'
     )
     entity_concept.reference = entity_reference
     raw_perception_concepts.append(entity_concept)
@@ -410,7 +507,7 @@ if __name__ == "__main__":
     theme_reference = Reference(
         axes=["abstract_theme"],
         shape=(1,),
-        initial_value=f"{abstract_theme} : {abstract_theme}"
+        initial_value='[{"Explanation": "As diplomat mentioned represents diplomatic peaceful relations, the trembling of pen leads to the nervousness and uncertainty of the diplomat then further leads to the abstract theme of fragility of peace.", "Summary_Key": "Fragility of Peace"}]'
     )
     theme_concept.reference = theme_reference
     raw_perception_concepts.append(theme_concept)
@@ -418,7 +515,7 @@ if __name__ == "__main__":
     # Process each raw perception concept through cognition
     pre_perception_concepts: list[Concept] = []
     for concept in raw_perception_concepts:
-        processed_reference = agent.cognition(concept, mode_of_remember="memory_bullet")
+        processed_reference = agent.cognition(concept, mode_of_remember="memory_json_bullet")
         concept.reference = processed_reference
         pre_perception_concepts.append(concept)
 
@@ -434,12 +531,12 @@ if __name__ == "__main__":
     raw_actuation_reference = Reference(
         axes=[raw_actuation_concept.comprehension["name"]],
         shape=(1,),
-        initial_value=f"{raw_actuation_concept.comprehension['name']} : {raw_actuation_concept.comprehension['name']}"
+        initial_value='[{"Explanation": "The relation \\"{1}_maps_{2}_onto_{3}_directly\\" is true if and only if the following conditions are met: {1} must be a figurative language element that establishes a direct symbolic connection between {2}, a specific and tangible entity, and {3}, an abstract and complex theme, such that the meaning of {2} symbolically represents or conveys {3} without any intervening concepts or ambiguities obstructing the transfer of symbolic meaning. Additionally, the mapping must occur explicitly within a context where both {2} and {3} are clearly present and the symbolic relationship is unambiguous.", "Summary_Key": "{1}_maps_{2}_onto_{3}_directly"}]'
     )
     raw_actuation_concept.reference = raw_actuation_reference
 
     # Get working config for judgement type
-    actuated_reference = agent.cognition(raw_actuation_concept, mode_of_remember="memory_bullet")
+    actuated_reference = agent.cognition(raw_actuation_concept, mode_of_remember="memory_json_bullet")
     the_actuation_concept = raw_actuation_concept
     the_actuation_concept.reference = actuated_reference
 
