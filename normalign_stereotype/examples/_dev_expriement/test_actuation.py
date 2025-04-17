@@ -2,10 +2,11 @@ from string import Template
 import copy
 import re
 import ast
+import json
 from normalign_stereotype.core._modified_llm import ConfiguredLLM, StructuredLLM, BulletLLM
 from normalign_stereotype.core._agent import Agent
 from normalign_stereotype.core._concept import Concept
-from normalign_stereotype.core._reference import Reference, element_action, cross_action
+from normalign_stereotype.core._reference import Reference, element_action, cross_action, cross_product
 
 def _safe_eval(s):
     """Safely evaluate a string representation of a list or other Python literal."""
@@ -43,6 +44,7 @@ def get_default_working_config(concept_type):
     perception_config = {
         "mode": "memory_retrieval"
     }
+    actuation_config = {}
 
     default_variable_definition_dict = {
         "actu_n": "actu_n",
@@ -237,6 +239,52 @@ def _actuation_llm_prompt_two_replacement(to_actuate_name, prompt_template, vari
 
     return actuated_func
 
+def _cognition_memory_bullet(bullet, concept_name, memory_location):
+    value, name = bullet.rsplit(':', 1)
+    _update_memory(name.strip(), value.strip(), concept_name, memory_location)
+    return name
+
+def _update_memory(name, value, concept_name, memory_location):
+    """Persist data to JSON file using JSON Lines format (one JSON object per line)"""
+
+    _key_memory_concept = lambda x:_key_memory(x, concept_name)
+
+    with open(memory_location, 'r+') as f:
+        data = json.load(f)  # Reads and moves pointer to EOF
+        data[_key_memory_concept(name)] = value  # Modify data
+        f.seek(0)  # Move pointer back to start
+        json.dump(data, f)  # Write new data (overwrites from position 0)
+        f.truncate()
+
+def _combine_pre_perception_concepts(pre_perception_concepts, agent: Agent):
+    #use cross-product to make the only perception concept for processing
+    the_pre_perception_concept_name = (
+        str([pc.comprehension["name"] for pc in pre_perception_concepts])
+        if len(pre_perception_concepts) > 1
+        else pre_perception_concepts[0].comprehension["name"]
+    )
+    the_pre_perception_reference = (
+        cross_product(
+            [pc.reference for pc in pre_perception_concepts]
+        )
+        if len(pre_perception_concepts) > 1
+        else pre_perception_concepts[0].reference
+    )
+
+    the_pre_perception_concept_type = "[]"
+
+    agent.working_memory['perception'][the_pre_perception_concept_name], _ = \
+        get_default_working_config(the_pre_perception_concept_type)
+
+    return Concept(
+        name = the_pre_perception_concept_name,
+        context = "",
+        type = the_pre_perception_concept_type,
+        reference = the_pre_perception_reference,
+    )
+
+
+
 
 if __name__ == "__main__":
 
@@ -244,6 +292,32 @@ if __name__ == "__main__":
 
         def __init__(self, body):
             super().__init__(body)
+
+        def cognition(self, concept, mode_of_remember = "memory_bullet", perception_working_config = None, actuation_working_config = None, **kwargs):
+            """Process values into names and store"""
+
+            if not isinstance(concept, Concept):
+                raise ValueError("Perception requires Concept instance")
+
+            raw_reference = concept.reference
+            concept_name = concept.comprehension.get("name")
+            concept_context = concept.comprehension.get("context")
+            concept_type = concept.comprehension.get("type")
+
+            default_perception_working_config, default_actuation_working_config = get_default_working_config(concept_type)
+            self.working_memory['perception'][concept_name] = perception_working_config or default_perception_working_config
+            self.working_memory['actuation'][concept_name] = actuation_working_config or default_actuation_working_config
+
+
+            if mode_of_remember == "memory_bullet":
+                _cognition_memory_bullet_element = lambda bullet: _cognition_memory_bullet(
+                    bullet,
+                    concept_name,
+                    self.body['memory_location']
+                )
+                return element_action(_cognition_memory_bullet_element, [raw_reference])
+
+            raise ValueError(f"Unknown cognition mode: {mode_of_remember}")
 
         def actuation(self, concept, for_perception_concept_name = ''):
             """Create functions through named parameter resolution"""
@@ -296,63 +370,93 @@ if __name__ == "__main__":
     specific_entity = "pen trembled"
     abstract_theme = "Fragility of Peace"
 
-    # Create perception values
-    perc_n_list = [figurative_language_element, specific_entity, abstract_theme]
-    perc_v_list = [figurative_language_element, specific_entity, abstract_theme]
-    perc_cn_list = ["figurative language element", "specific entity", "abstract theme"]
-
-    # Create perception concept
-    perception_concept = Concept(
-        name=str(perc_cn_list),
+    # Create raw perception concepts
+    raw_perception_concepts: list[Concept] = []
+    
+    # Create figurative language element concept
+    figurative_concept = Concept(
+        name="figurative_language_element",
         context="",
         type="[]"
     )
+    figurative_reference = Reference(
+        axes=["figurative_language_element"],
+        shape=(1,),
+        initial_value=f"{figurative_language_element} : {figurative_language_element}"
+    )
+    figurative_concept.reference = figurative_reference
+    raw_perception_concepts.append(figurative_concept)
+
+    # Create specific entity concept
+    entity_concept = Concept(
+        name="specific_entity",
+        context="",
+        type="[]"
+    )
+    entity_reference = Reference(
+        axes=["specific_entity"],
+        shape=(1,),
+        initial_value=f"{specific_entity} : {specific_entity}"
+    )
+    entity_concept.reference = entity_reference
+    raw_perception_concepts.append(entity_concept)
+
+    # Create abstract theme concept
+    theme_concept = Concept(
+        name="abstract_theme",
+        context="",
+        type="[]"
+    )
+    theme_reference = Reference(
+        axes=["abstract_theme"],
+        shape=(1,),
+        initial_value=f"{abstract_theme} : {abstract_theme}"
+    )
+    theme_concept.reference = theme_reference
+    raw_perception_concepts.append(theme_concept)
+
+    # Process each raw perception concept through cognition
+    pre_perception_concepts: list[Concept] = []
+    for concept in raw_perception_concepts:
+        processed_reference = agent.cognition(concept, mode_of_remember="memory_bullet")
+        concept.reference = processed_reference
+        pre_perception_concepts.append(concept)
+
+    # Combine the raw perception concepts into a single pre-perception concept
+    the_pre_perception_concept = _combine_pre_perception_concepts(pre_perception_concepts, agent)
+
     # Create actuation concept
-    actuation_concept = Concept(
+    raw_actuation_concept = Concept(
         name="{1}_maps_{2}_onto_{3}_directly",
         context="",
         type="<>"
     )
+    raw_actuation_reference = Reference(
+        axes=[raw_actuation_concept.comprehension["name"]],
+        shape=(1,),
+        initial_value=f"{raw_actuation_concept.comprehension['name']} : {raw_actuation_concept.comprehension['name']}"
+    )
+    raw_actuation_concept.reference = raw_actuation_reference
 
     # Get working config for judgement type
-    perception_config, actuation_config = get_default_working_config("<>")
-
-    # Configure agent's working memory
-    agent.working_memory = {
-        'perception': {
-            perception_concept.comprehension["name"]: perception_config
-        },
-        'actuation': {
-            actuation_concept.comprehension["name"]: actuation_config
-        }
-    }
-
-    # Create perception reference with proper structure - list of (name, value) pairs
-    perception_reference = Reference(
-        axes=[perception_concept.comprehension["name"]],
-        shape=(1,),
-        initial_value=list((perc_n_list, perc_v_list))  # Create list of (name, value) 
-    )
-    perception_concept.reference = perception_reference
-
-    # Create actuation reference
-    actuation_reference = Reference(
-        axes=[actuation_concept.comprehension["name"]],
-        shape=(1,),
-        initial_value=actuation_concept.comprehension['name']
-    )
-    actuation_concept.reference = actuation_reference
+    actuated_reference = agent.cognition(raw_actuation_concept, mode_of_remember="memory_bullet")
+    the_actuation_concept = raw_actuation_concept
+    the_actuation_concept.reference = actuated_reference
 
     # Get actuated function from agent
     actuated_func_reference = agent.actuation(
-        concept=actuation_concept,
-        for_perception_concept_name=perception_concept.comprehension["name"]
+        concept=the_actuation_concept,
+        for_perception_concept_name=the_pre_perception_concept.comprehension["name"]
+    )
+
+    percived_value_reference = agent.perception(
+        concept=the_pre_perception_concept,
     )
 
     # Test with a perception
     result = cross_action(
         A=actuated_func_reference,
-        B=perception_reference,
+        B=percived_value_reference, 
         new_axis_name="figurative_language_element_maps_specific_entity_onto_abstract_theme_directly"
     )
     print("Actuation result:", result.tensor)
