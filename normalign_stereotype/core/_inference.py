@@ -2,7 +2,6 @@ import os
 
 from normalign_stereotype.core._reference import Reference, cross_action, cross_product, element_action
 from normalign_stereotype.core._concept import Concept
-from normalign_stereotype.core._pos_analysis import _get_phrase_pos
 from normalign_stereotype.core._agent import Agent, get_default_working_config
 from typing import Optional
 
@@ -136,7 +135,7 @@ class Inference:
         if perception_config is None:
             if self.perception_working_config_concept_to_infer is None:
                 default_perception, default_actuation = get_default_working_config(
-                    self.concept_to_infer.comprehension["name"]
+                    self.concept_to_infer.comprehension["type"]
                 )
                 self.perception_working_config_concept_to_infer = perception_config or default_perception
         else:
@@ -145,7 +144,7 @@ class Inference:
         if actuation_config is None:
             if self.actuation_working_config_concept_to_infer is None:
                 default_perception, default_actuation = get_default_working_config(
-                    self.concept_to_infer.comprehension["name"]
+                    self.concept_to_infer.comprehension["type"]
                 )
                 self.actuation_working_config_concept_to_infer = actuation_config or default_actuation
         else:
@@ -162,56 +161,6 @@ class Inference:
         self.concept_to_infer.reference = self.viewed_ref
 
         return self.concept_to_infer
-
-    def cognition_configuration(self, execution = True):
-        """Configure perception and actuation for the concept"""
-
-        concept_name = self.concept_to_infer.comprehension["name"]
-
-        self.perception_working_config_concept_to_infer = {
-            "mode": "memory_retrieval"
-        }
-
-        if not self.customized_actuation_config:
-            if "classification" in concept_name:
-                self.actuation_working_config_concept_to_infer = {
-                    "mode": "classification",
-                    "actuated_llm": "structured_llm",
-                    "prompt_template_path": os.path.join(PROJECT_ROOT, "normalign_stereotype/templates/basic_template/classification-d"),
-                    "place_holders": {
-                        "meta_input_name_holder": "{meta_input_name}",
-                        "meta_input_value_holder": "{meta_input_value}",
-                        "input_key_holder": "{input_name}",
-                        "input_value_holder": "{input_value}",
-                    },
-                }
-            else:
-                pos = _get_phrase_pos(concept_name)
-                input_key_holder = "{input_name}"
-                if pos == "noun":
-                    input_key_holder = "{verb/proposition}"
-                elif pos == "verb":
-                    input_key_holder = "{noun/object/event}"
-
-                self.actuation_working_config_concept_to_infer = {
-                    "mode": "pos",
-                    "actuated_llm": "bullet_llm",
-                    "meta_llm": "llm",
-                    "prompt_template_path": os.path.join(PROJECT_ROOT, f"normalign_stereotype/templates/pos_template/{pos}"),
-                    "place_holders": {
-                        "meta_input_name_holder": "{meta_input_name}",
-                        "meta_input_value_holder": "{meta_input_value}",
-                        "input_key_holder": input_key_holder,
-                        "input_value_holder": "{input_value}",
-                    },
-                }
-        if execution:
-            self.configured_ref = self.agent.cognition(
-                self.concept_to_infer,
-                perception_working_config=self.perception_working_config_concept_to_infer,
-                actuation_working_config=self.actuation_working_config_concept_to_infer
-            )
-            return self.configured_ref
 
     def get_active_reference(self):
         """Get the currently active reference"""

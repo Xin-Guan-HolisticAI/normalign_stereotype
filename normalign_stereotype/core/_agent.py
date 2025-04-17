@@ -7,43 +7,6 @@ from normalign_stereotype.core._concept import Concept
 import re
 
 
-concept_comprehension_prompt = """
-
-Given the context: "{concept_context}"
-Explain what "{concept_name}" means, while keeping its meaning independent. Give a one-to-several sentences for definition, and make sure it is independent of the context.
-
-"""
-
-
-classification_prompt = """
-
-Your task is to find instances of "{meta_name}".
-    
-Context: "{meta_value}"
-
-Find from: "{input_value}"
-
-Your output should be some context and explanations following a summary name for each of the instance,
-
-
-"""
-
-
-judgement_prompt = """
-
-Your task is to judge if the truth condition of "{meta_name}" given the variables are "{meta_name_variables}" being "{input_names}".
-
-That is to say, your task is to judge if "{meta_name_substituted}" is true.
-
-Context: 
-- "{meta_names}": "{meta_value}"
-{input_names_input_value_pairs}
-
-Your output should be some justifications following your judge i.e. "True", "False", or "Not Sure".
-
-"""
-
-
 def get_default_working_config(concept_name):
     """Get default cognition configuration based on concept name."""
     perception_config = {
@@ -389,6 +352,33 @@ class Agent:
         text = re.sub(r'\([^)]*\)', '', text)
         text = re.sub(r'\s+', ' ', text).strip()
         return text
+
+
+    def _actuation_llm_prompt_two_replacement(self, to_actuate_name, prompt_template, place_holders, key_build,
+                                              actuated_llm, to_actuate_concept_name = ''):
+
+        memory_location = self.body.get("memory_location")
+        memory = eval(open(memory_location).read())
+
+        meta_input_name_holder = place_holders.get("meta_input_name_holder", "{meta_input_name}")
+        meta_input_value_holder = place_holders.get("meta_input_value_holder", "{meta_input_value}")
+        input_key_holder = place_holders.get("input_key_holder", "{input_name}")
+        input_value_holder = place_holders.get("input_value_holder", "{input_value}")
+
+        to_actuate_value = memory.get(key_build(to_actuate_name), to_actuate_name)
+        actuated_prompt = (prompt_template.replace(meta_input_name_holder, self._clean_parentheses(to_actuate_name)).
+                           replace(meta_input_value_holder, to_actuate_value))
+
+        def actuated_func(input_perception):
+            input_key = input_perception[0]
+            input_value = input_perception[1]
+            passed_in_prompt = (actuated_prompt.replace(input_key_holder, self._clean_parentheses(str(input_key))).
+                                replace(input_value_holder, str(input_value)))
+            print("         passed in prompt:  ", repr(passed_in_prompt))
+            return eval(actuated_llm.invoke(passed_in_prompt))
+
+        return actuated_func
+
 
     def _actuation_llm_prompt_two_replacement(self, to_actuate_name, prompt_template, place_holders, key_build,
                                               actuated_llm):

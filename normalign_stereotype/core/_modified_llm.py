@@ -80,7 +80,7 @@ class StructuredLLM(LLM):
         Enhanced invoke with robust format validation and retries.
         Returns empty list if format validation fails after retries.
         """
-        system_prompt = """Answer the question. If there are distinct elements of your answer, format output ONLY as a Python list: ["Key: Full explanation...", ...] where:
+        system_prompt = """Answer the question in the tasks. If there are distinct elements of your answer, format output ONLY as a Python list: ["Key: Full explanation...", ...] where:
 
 1. Explanation Requirements:
    - Start with full long explanation and reasoning from contextual information before colon. Explanation and the reasoning should be clear and faithful to the context!
@@ -98,7 +98,7 @@ class StructuredLLM(LLM):
    - Return empty list [] if no valid answers exist
    - Make sure only one colon ":" is used for one answer element
    
-Example: ["Marie Curie was a Polish-French physicist and chemist who discovered radioactivity elements polonium/radium. She became first woman Nobel laureate (1903) and first double Nobel winner, revolutionizing radiation therapy :Marie Curie", "Alan Turing was a British mathematician who developed modern computing concepts through his Turing Machine model. He decrypted Nazi Enigma codes in WWII and established foundational AI principles in his Turing Test :Alan Turing"]
+Example: ["Marie Curie was a Polish-French physicist and chemist who discovered radioactivity elements polonium/radium. She became first woman Nobel laureate (1903) and first double Nobel winner, revolutionizing radiation therapy : Marie Curie", "Alan Turing was a British mathematician who developed modern computing concepts through his Turing Machine model. He decrypted Nazi Enigma codes in WWII and established foundational AI principles in his Turing Test : Alan Turing"]
 """
         for _ in range(max_retries):
             try:
