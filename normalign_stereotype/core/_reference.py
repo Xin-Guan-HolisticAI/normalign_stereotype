@@ -370,7 +370,7 @@ def cross_action(A, B, new_axis_name):
     result_ref._replace_data(new_data)
     return result_ref
 
-def element_action(f, references):
+def element_action(f, references, index_awareness=False):
     """
     Applies a function element-wise across multiple References with potentially different axes.
     Returns a new Reference with combined axes and results of f applied to aligned elements.
@@ -378,6 +378,7 @@ def element_action(f, references):
     Args:
         f (callable): Function to apply to elements from the References
         references (list): List of Reference instances
+        index_awareness (bool): If True, passes location information as second argument to f
 
     Returns:
         Reference: New Reference with combined axes and transformed data
@@ -431,7 +432,10 @@ def element_action(f, references):
             try:
                 if any(e == "@#SKIP#@" for e in elements):
                     return "@#SKIP#@"
-                return f(*elements)
+                if index_awareness:
+                    return f(*elements, index_dict)
+                else:
+                    return f(*elements)
             except Exception:
                 return "@#SKIP#@"
         else:
