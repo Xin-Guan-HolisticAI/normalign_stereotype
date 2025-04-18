@@ -1,0 +1,9 @@
+Identify all clauses in the following sentence.
+A clause is a group of words that contains a subject and a predicate (verb). Split the sentence into its smallest constituent clauses.
+
+Sentence: {sentence}
+
+Return **ONLY** a valid JSON array of clauses formatted like this: ["clause 1", "clause 2", ...].
+- Use double quotes for strings.
+- Do not include explanations, notes, or markdown formatting.
+- Ensure clauses are exact substrings of the original sentence.
