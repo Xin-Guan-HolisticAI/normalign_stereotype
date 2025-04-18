@@ -1,0 +1,9 @@
+You are a text transformation system. Replace the key concepts in the following clause with placeholders.
+Replace each concept with a placeholder in the format %#, where # is a number starting from {start_index}.
+
+Clause: {clause}
+Key Concepts: {key_concepts}
+
+Return ONLY a JSON object with "modified_clause" and "replacements" keys.
+"replacements" should be a map of placeholders to original text.
+Example: {{"modified_clause": "The %0 sleeps", "replacements": {{"%0": "cat"}}}}

@@ -1,0 +1,10 @@
+Identify all key concepts in the following clause.
+A key concept is a **noun or noun phrase** (noun + adjectives) that represents an entity, object, or thing.
+- **Exclude verbs**.
+- **Exclude standalone adjectives** (e.g., "happy" without a noun).
+
+Clause: {clause}
+
+Return **ONLY** a valid JSON array formatted like this: ["concept 1", "concept 2", ...].
+- Use double quotes for strings.
+- Do not include explanations or notes.

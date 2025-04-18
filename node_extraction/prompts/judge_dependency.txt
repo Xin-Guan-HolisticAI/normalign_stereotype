@@ -1,0 +1,23 @@
+You are given a sentence and two noun concepts: concept_1 and concept_2.
+
+Judge if the reference of the concept_1 depend on the reference of the concept_2.
+That is to judge if it is true that the reference of the concept_1 should only be known if we know the reference of the concept_2 according to the sentence. After some initial thoughts, end your answer with "yes", "no" or "not sure".
+
+Return JSON with two keys:
+1. "reasoning": Brief analysis (1-2 sentences)
+2. "answer"
+    - "yes" (clear dependency)
+    - "no" (no dependency)
+    - "not sure" (ambiguous relationship)
+
+Format:
+{{
+  "reasoning": "...",
+  "answer": "..."
+}}
+
+Here is the input:
+
+sentence: "{sentence}"
+concept_1: "{concept_1}"
+concept_2: "{concept_2}"
