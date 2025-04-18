@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Optional, List
 
 class Reference:
     def __init__(self, axes, shape, initial_value=None, skip_value="@#SKIP#@"):
@@ -230,6 +230,27 @@ class Reference:
             initial_value=None,
             skip_value="@#SKIP#@"
         )._replace_data(sliced_data)
+
+    def shape_view(self, view: Optional[List[str]] = None) -> 'Reference':
+        """Apply view by selecting specified axes, using all when empty.
+        
+        Args:
+            view: Optional list of axes to keep in the view. If None or empty, uses all axes.
+            
+        Returns:
+            A new Reference with only the selected axes
+        """
+        # Use all axes if view is empty
+        selected_axes = view if view else self.axes.copy()
+
+        # Validate existence of selected axes
+        available_axes = set(self.axes)
+        for axis in selected_axes:
+            if axis not in available_axes:
+                raise ValueError(f"Axis '{axis}' not found in reference axes")
+
+        # Create new reference with selected axes
+        return self.slice(*selected_axes)
 
     def _replace_data(self, new_data):
         """Private method to directly set data (bypassing normal initialization)"""

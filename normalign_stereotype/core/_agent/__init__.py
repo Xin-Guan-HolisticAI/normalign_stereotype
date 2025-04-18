@@ -12,6 +12,7 @@ from ._cognition import (
     _recollect_by_concept_name_location_dict,
     _cognition_memory_bullet,
     _cognition_memory_json_bullet,
+    _combine_pre_perception_concepts_by_two_lists
 )
 
 from ._actuation import (
@@ -20,7 +21,6 @@ from ._actuation import (
 
 from ._perception import (
     _perception_memory_retrieval,
-    _combine_pre_perception_concepts
 )
 
 from ._agent_main import AgentFrame
@@ -38,6 +38,6 @@ __all__ = [
     '_cognition_memory_json_bullet',
     '_perception_memory_retrieval',
     '_actuation_llm_prompt_two_replacement',
-    '_combine_pre_perception_concepts',
+    '_combine_pre_perception_concepts_by_two_lists',
     'AgentFrame'
 ] 

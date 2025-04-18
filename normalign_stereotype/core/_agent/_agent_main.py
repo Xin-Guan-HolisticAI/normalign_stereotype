@@ -12,6 +12,7 @@ from ._cognition import (
     _recollect_by_concept_name_location_dict,
     _cognition_memory_bullet,
     _cognition_memory_json_bullet,
+    _combine_pre_perception_concepts_by_two_lists
 )
 
 from ._actuation import (
@@ -20,7 +21,7 @@ from ._actuation import (
 
 from ._perception import (
     _perception_memory_retrieval,
-    _combine_pre_perception_concepts
+
 )
 
 from normalign_stereotype.core._reference import Reference, element_action
@@ -28,7 +29,7 @@ from normalign_stereotype.core._concept import Concept
 import logging
 
 class AgentFrame:
-    def __init__(self, body, mode_of_remember="memory_json_bullet", mode_of_recollection="concept_name_location_dict", debug=False):
+    def __init__(self, body, mode_of_remember="memory_json_bullet", mode_of_recollection="concept_name_location_dict",  mode_of_perception_combination="two_lists", debug=False):
         self.body = body
         self.debug = debug
         self.working_memory = {
@@ -36,9 +37,14 @@ class AgentFrame:
             'actuation': {},
             'cognition': {
                 'mode_of_remember': mode_of_remember,
-                'mode_of_recollection': mode_of_recollection
+                'mode_of_recollection': mode_of_recollection,
+                'mode_of_perception_combination': mode_of_perception_combination
             }
         }
+        if mode_of_perception_combination == "two_lists":
+            self.perception_combination = _combine_pre_perception_concepts_by_two_lists
+        else:
+            raise ValueError(f"Unknown perception combination mode: {mode_of_perception_combination}")
         
         # Set up logging if debug is enabled
         if debug:
