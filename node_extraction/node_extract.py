@@ -1,7 +1,9 @@
 """Input Sentence → Clause Identification → Key Concept Extraction
 → Concept Replacement → Verification → Result Combination"""
 import json
+import networkx as nx
 from itertools import permutations
+
 
 from LLMFactory import LLMFactory
 
@@ -228,6 +230,116 @@ def resolve_conflict_relations(conflict_concepts, sentence, llm):
     return resolved_relations, resolved_reasonings
 
 
+def update_relations_judgement(concept_pairs, concepts_relations_judgement, conflict_concepts, resolved_conflicts):
+    for conflict_pair, new_judgement in zip(conflict_concepts, resolved_conflicts):
+        if new_judgement == 'yes':
+            # Find the reverse pair and update its judgement to 'no'
+            reverse_pair = [conflict_pair[1], conflict_pair[0]]
+            if reverse_pair in concept_pairs:
+                index = concept_pairs.index(reverse_pair)
+                concepts_relations_judgement[index] = 'no'
+        elif new_judgement == 'no':
+            # Update the original conflict pair's judgement to 'no'
+            if conflict_pair in concept_pairs:
+                index = concept_pairs.index(conflict_pair)
+                concepts_relations_judgement[index] = 'no'
+
+    return concepts_relations_judgement
+
+
+# def generate_and_save_dot(concept_pairs, concepts_relations_judgement, filename="concept_graph.dot"):
+#     """
+#     Generate a DOT file from concept pairs and relation judgements, saving to specified filename.
+#
+#     Args:
+#         concept_pairs (list): List of concept pairs
+#         concepts_relations_judgement (list): List of relation judgements
+#         filename (str): Output filename (default: 'concept_graph.dot')
+#     """
+#     dot_content = ['digraph G {']
+#
+#     # Add all unique nodes first
+#     unique_concepts = set()
+#     for pair in concept_pairs:
+#         unique_concepts.add(pair[0])
+#         unique_concepts.add(pair[1])
+#
+#     # Format nodes (handle concepts with spaces)
+#     for concept in sorted(unique_concepts):
+#         dot_content.append(f'    "{concept}";')
+#
+#     # Add edges for "yes" relations
+#     for pair, judgement in zip(concept_pairs, concepts_relations_judgement):
+#         if judgement == 'yes':
+#             source = f'"{pair[1]}"'
+#             target = f'"{pair[0]}"'
+#             dot_content.append(f'    {source} -> {target};')
+#
+#     dot_content.append('}')
+#
+#     # Write to file
+#     with open(filename, 'w') as f:
+#         f.write('\n'.join(dot_content))
+#
+#     print(f"DOT file saved as {filename}")
+
+
+
+
+def generate_and_save_dot(concept_pairs, concepts_relations_judgement, filename="concept_graph.dot", prune=False):
+    """
+    Generate a DOT file with edges pointing FROM concept2 TO concept1
+    (representing "need concept2 to understand concept1")
+    """
+    # Create a directed graph
+    G = nx.DiGraph()
+
+    # First, add all unique concepts as nodes
+    unique_concepts = set()
+    for concept_1, concept_2 in concept_pairs:
+        unique_concepts.add(concept_1)
+        unique_concepts.add(concept_2)
+
+    # Add all concepts as nodes
+    for concept in unique_concepts:
+        G.add_node(concept)
+
+    # Add edges where judgment is 'yes'
+    # Note: edges point from concept_2 to concept_1 as specified
+    for (concept_1, concept_2), judgment in zip(concept_pairs, concepts_relations_judgement):
+        if judgment == 'yes':
+            G.add_edge(concept_2, concept_1)
+
+    # Prune transitive edges if requested
+    if prune:
+        transitive_closure = nx.transitive_closure(G)
+        edges_to_remove = []
+
+        for u, v in G.edges():
+            # Check for indirect paths (transitive edges)
+            for intermediate in G.nodes():
+                if (intermediate != u and intermediate != v and
+                        transitive_closure.has_edge(u, intermediate) and
+                        transitive_closure.has_edge(intermediate, v)):
+                    edges_to_remove.append((u, v))
+                    break
+
+        for u, v in edges_to_remove:
+            G.remove_edge(u, v)
+
+    # Generate DOT file content
+    dot_content = ["digraph G {"]
+    for u, v in G.edges():
+        dot_content.append(f'    "{u}" -> "{v}";')
+    dot_content.append("}")
+
+    # Save to file
+    with open(filename, 'w') as f:
+        f.write('\n'.join(dot_content))
+
+    print(f"DOT file saved as {filename}")
+
+
 def process_sentence(sentence, model_name="qwen-turbo-latest"):
     """
     Process a sentence through the entire pipeline
@@ -245,8 +357,6 @@ def process_sentence(sentence, model_name="qwen-turbo-latest"):
     # Step 1: Identify clauses
     clauses = identify_clauses(sentence, llm)
     print(clauses)
-
-    result = []
 
     # Step 2: Extract key concepts
     key_concepts = []
@@ -277,7 +387,15 @@ def process_sentence(sentence, model_name="qwen-turbo-latest"):
     print(resolved_conflicts)
     print(resolved_reasonings)
 
+    # Step 8: Update The relation judgement
+    concepts_relations_judgement = update_relations_judgement(concepts_pairs, concepts_relations_judgement, conflict_concepts, resolved_conflicts)
+    print(concepts_relations_judgement)
 
+    # Step 9: Generate the dot file
+    generate_and_save_dot(concepts_pairs, concepts_relations_judgement, "original_concept_graph.dot")
+
+    # Step 10: Generate the pruned dot file
+    generate_and_save_dot(concepts_pairs, concepts_relations_judgement, "pruned_concept_graph.dot", True)
 
 if __name__ == "__main__":
     # sentence = "The cat sleeps when the dog barks, and the bird sings."
