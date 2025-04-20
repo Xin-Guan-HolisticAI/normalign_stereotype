@@ -6,6 +6,7 @@ from ._utils import (
     _replace_placeholders_with_values,
     _prompt_template_dynamic_substitution
 )
+from ._cognition import _recollect_nested
 
 def _actuation_llm_prompt_two_replacement(to_actuate_name, prompt_template, variable_definitions,
                                             actuated_llm, to_actuate_concept_name = None, perception_concept_name = None, index_dict=None, recollection=None):
@@ -15,8 +16,9 @@ def _actuation_llm_prompt_two_replacement(to_actuate_name, prompt_template, vari
 
     base_values_dict = {}
 
-    # Get to_actuate_value with location awareness
-    to_actuate_value = recollection(memory, to_actuate_name, index_dict)
+    # Get to_actuate_value with location awareness using nested recollection
+    concept_name_list = [to_actuate_concept_name] if to_actuate_concept_name else []
+    to_actuate_value = _recollect_nested(memory, to_actuate_name, concept_name_list, index_dict, recollection)
     if to_actuate_value is None:
         to_actuate_value = to_actuate_name
 

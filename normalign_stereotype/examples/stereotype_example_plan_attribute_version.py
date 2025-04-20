@@ -1,11 +1,11 @@
 import os
 import json
 
-from normalign_stereotype.core._modified_llm import ConfiguredLLM, BulletLLM, StructuredLLM
-from normalign_stereotype.core._agent import Agent
-from normalign_stereotype.core._plan import Plan
-from normalign_stereotype.core._config import PROJECT_ROOT
-from normalign_stereotype.core._reference import Reference
+from normalign_stereotype.core._llm_tools import ConfiguredLLM, BulletLLM, StructuredLLM
+from normalign_stereotype.core._agent_frame import Agent
+from normalign_stereotype.core._objects._plan import Plan
+from normalign_stereotype.core._path import PROJECT_ROOT
+from normalign_stereotype.core._objects._reference import Reference
 
 
 

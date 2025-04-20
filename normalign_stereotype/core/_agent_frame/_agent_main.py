@@ -24,8 +24,8 @@ from ._perception import (
 
 )
 
-from normalign_stereotype.core._reference import Reference, element_action
-from normalign_stereotype.core._concept import Concept
+from normalign_stereotype.core._objects._reference import Reference, element_action
+from normalign_stereotype.core._objects._concept import Concept
 import logging
 
 class AgentFrame:
@@ -141,9 +141,11 @@ class AgentFrame:
             _memory_retrieval_perception = lambda name_may_list, index_dict:(
                 _perception_memory_retrieval(
                     name_may_list,
+                    concept_name_may_list,
                     index_dict,
                     self.recollection,
-                    self.body['memory_location']
+                    self.body['memory_location'],
+                    self.debug,
                 )
             )
             return element_action(_memory_retrieval_perception, [reference], index_awareness=True)

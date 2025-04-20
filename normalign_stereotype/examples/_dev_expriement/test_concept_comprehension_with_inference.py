@@ -1,8 +1,8 @@
-from normalign_stereotype.core._agent import Agent, get_default_working_config
-from normalign_stereotype.core._concept import Concept, CONCEPT_TYPE_OBJECT, CONCEPT_TYPE_JUDGEMENT
-from normalign_stereotype.core._inference import Inference
-from normalign_stereotype.core._modified_llm import ConfiguredLLM, StructuredLLM, BulletLLM
-from normalign_stereotype.core._reference import Reference
+from normalign_stereotype.core._agent_frame import Agent, get_default_working_config
+from normalign_stereotype.core._objects._concept import Concept, CONCEPT_TYPE_OBJECT, CONCEPT_TYPE_JUDGEMENT
+from normalign_stereotype.core._objects._inference import Inference
+from normalign_stereotype.core._llm_tools import ConfiguredLLM, StructuredLLM, BulletLLM
+from normalign_stereotype.core._objects._reference import Reference
 
 
 def test_judgement_concept_comprehension():

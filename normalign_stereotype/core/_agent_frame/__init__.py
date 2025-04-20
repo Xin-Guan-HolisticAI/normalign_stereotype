@@ -8,6 +8,7 @@ from ._utils import (
 )
 
 from ._cognition import (
+    _create_concept_reference,
     _remember_in_concept_name_location_dict,
     _recollect_by_concept_name_location_dict,
     _cognition_memory_bullet,
@@ -32,6 +33,7 @@ __all__ = [
     '_clean_parentheses',
     '_prompt_template_dynamic_substitution',
     '_get_default_working_config',
+    '_create_concept_reference',
     '_remember_in_concept_name_location_dict',
     '_recollect_by_concept_name_location_dict',
     '_cognition_memory_bullet',

@@ -1,4 +1,4 @@
-from normalign_stereotype.core._modified_llm import ConfiguredLLM, StructuredLLM, BulletLLM
+from normalign_stereotype.core._llm_tools import ConfiguredLLM, StructuredLLM, BulletLLM
 from string import Template
 
 object_concept_meaning_prompt = Template("""

@@ -1,4 +1,4 @@
-from normalign_stereotype.core._reference import Reference
+from normalign_stereotype.core._objects._reference import Reference
 from typing import Optional
 
 # Concept type constants
@@ -17,27 +17,6 @@ CONCEPT_TYPES = {
     CONCEPT_TYPE_SENTENCE: "sentence",
     CONCEPT_TYPE_ASSIGNMENT: "assignment"
 }
-
-def create_concept_reference(concept: str, value: str, summary: Optional[str] = None) -> Reference:
-    """Create a reference for a concept with an explicit value.
-    
-    Args:
-        concept: The name of the concept
-        value: The explicit value to assign to the concept
-        summary: Optional summary for the reference. If None, uses value
-        
-    Returns:
-        A Reference object containing the concept reference with the specified value
-    """
-    if summary is None:
-        summary = value
-
-    return Reference(
-            axes=[concept],
-            shape=(1,),
-            initial_value=f"[{value} :{summary}]"
-        )
-
 
 class Concept:
     def __init__(self, name, context="", reference=None, type=CONCEPT_TYPE_OBJECT):
