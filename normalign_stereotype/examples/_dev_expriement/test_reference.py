@@ -1,4 +1,4 @@
-from normalign_stereotype.core._reference import Reference, cross_product, element_action
+from normalign_stereotype.core._objects._reference import Reference, cross_product, element_action
 
 def cross_action(A, B, new_axis_name):
     # Validate inputs

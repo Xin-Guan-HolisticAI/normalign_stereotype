@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Optional, List
 
 class Reference:
     def __init__(self, axes, shape, initial_value=None, skip_value="@#SKIP#@"):
@@ -231,6 +231,27 @@ class Reference:
             skip_value="@#SKIP#@"
         )._replace_data(sliced_data)
 
+    def shape_view(self, view: Optional[List[str]] = None) -> 'Reference':
+        """Apply view by selecting specified axes, using all when empty.
+        
+        Args:
+            view: Optional list of axes to keep in the view. If None or empty, uses all axes.
+            
+        Returns:
+            A new Reference with only the selected axes
+        """
+        # Use all axes if view is empty
+        selected_axes = view if view else self.axes.copy()
+
+        # Validate existence of selected axes
+        available_axes = set(self.axes)
+        for axis in selected_axes:
+            if axis not in available_axes:
+                raise ValueError(f"Axis '{axis}' not found in reference axes")
+
+        # Create new reference with selected axes
+        return self.slice(*selected_axes)
+
     def _replace_data(self, new_data):
         """Private method to directly set data (bypassing normal initialization)"""
         # Ensure the new data is properly padded
@@ -370,7 +391,7 @@ def cross_action(A, B, new_axis_name):
     result_ref._replace_data(new_data)
     return result_ref
 
-def element_action(f, references):
+def element_action(f, references, index_awareness=False):
     """
     Applies a function element-wise across multiple References with potentially different axes.
     Returns a new Reference with combined axes and results of f applied to aligned elements.
@@ -378,6 +399,7 @@ def element_action(f, references):
     Args:
         f (callable): Function to apply to elements from the References
         references (list): List of Reference instances
+        index_awareness (bool): If True, passes location information as second argument to f
 
     Returns:
         Reference: New Reference with combined axes and transformed data
@@ -431,7 +453,10 @@ def element_action(f, references):
             try:
                 if any(e == "@#SKIP#@" for e in elements):
                     return "@#SKIP#@"
-                return f(*elements)
+                if index_awareness:
+                    return f(*elements, index_dict)
+                else:
+                    return f(*elements)
             except Exception:
                 return "@#SKIP#@"
         else:

@@ -1,7 +1,7 @@
-from normalign_stereotype.core._modified_llm import ConfiguredLLM, BulletLLM, StructuredLLM
-from normalign_stereotype.core._reference import Reference, cross_action, cross_product, element_action
-from normalign_stereotype.core._concept import Concept
-from normalign_stereotype.core._agent import Agent
+from normalign_stereotype.core._llm_tools import ConfiguredLLM, BulletLLM, StructuredLLM
+from normalign_stereotype.core._objects._reference import Reference, cross_action, cross_product, element_action
+from normalign_stereotype.core._objects._concept import Concept
+from normalign_stereotype.core._agent_frame import Agent
 
 
 if __name__ == '__main__':

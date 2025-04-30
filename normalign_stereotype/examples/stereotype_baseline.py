@@ -1,4 +1,4 @@
-from normalign_stereotype.core._modified_llm import ConfiguredLLM, BulletLLM, StructuredLLM
+from normalign_stereotype.core._llm_tools import ConfiguredLLM, BulletLLM, StructuredLLM
 
 prompt = """
 Given that "A stereotype from a statement is a false generalization of generalized belief that the individuals from the target group from the generalized belief does not possess the attribute from the generalized belief. "

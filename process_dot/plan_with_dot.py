@@ -4,12 +4,12 @@ import ast
 import os
 from typing import Dict, List, Set, Optional, Union, Any
 
-from normalign_stereotype.core._plan import Plan
-from normalign_stereotype.core._agent import Agent, customize_actuation_working_config
-from normalign_stereotype.core._concept import create_concept_reference
-from normalign_stereotype.core._modified_llm import ConfiguredLLM, BulletLLM, StructuredLLM
-from normalign_stereotype.core._inference import Inference
-from normalign_stereotype.core._reference import Reference
+from normalign_stereotype.core._objects._plan import Plan
+from normalign_stereotype.core._agent_frame import Agent, customize_actuation_working_config
+from normalign_stereotype.core._objects._concept import _create_concept_reference
+from normalign_stereotype.core._llm_tools import ConfiguredLLM, BulletLLM, StructuredLLM
+from normalign_stereotype.core._objects._inference import Inference
+from normalign_stereotype.core._objects._reference import Reference
 
 
 class DOTParser:
@@ -360,7 +360,7 @@ def create_plan_from_dot(dot_file_path: str,
             plan.make_reference(
                 concept, 
                 actuation_working_config=working_config.get(concept, {}).get("actuation", None),
-                reference=create_concept_reference(concept, concept, concept), 
+                reference=_create_concept_reference(concept, concept, concept), 
                 read_reference=False
                 )
 

@@ -1,0 +1,26 @@
+You are given a sentence and two noun concepts: concept_1 and concept_2.
+
+In the previous step, you identified both concepts are referential dependent on each other.
+That is to judge if it is true that the reference of the concept_1 should only be known if we know the reference of the concept_2 according to the sentence.
+
+According to the definition, there is only one way dependency, meaning that if concept_1 is depends on concept_2, then concept_2 could not depend on concept_1.
+Now, you need to judge which dependency is more reasonable.
+
+Return JSON with two keys:
+1. "reasoning": Brief analysis
+2. "answer"
+    - "yes" (if concept_1 is depend on concept_2)
+    - "no" (if concept_2 is depend on concept_1)
+    - "not sure" (ambiguous relationship)
+
+Format:
+{{
+  "reasoning": "...",
+  "answer": "..."
+}}
+
+Here is the input:
+
+sentence: "{sentence}"
+concept_1: "{concept_1}"
+concept_2: "{concept_2}"
